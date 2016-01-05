@@ -25,34 +25,30 @@ import javax.sql.DataSource;
 @EnableTransactionManagement
 public class RdmsConfig {
 
-        @Bean
-        public DataSource dataSource() {
+    @Bean
+    public static DataSource dataSource() {
+        EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
+        return builder.setType(EmbeddedDatabaseType.HSQL).build();
+    }
 
-                EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
-                return builder.setType(EmbeddedDatabaseType.HSQL).build();
-        }
+    @Bean
+    public static EntityManagerFactory entityManagerFactory(DataSource dataSource) {
+        HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+        vendorAdapter.setGenerateDdl(true);
 
-        @Bean
-        public EntityManagerFactory entityManagerFactory() {
+        LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+        factory.setJpaVendorAdapter(vendorAdapter);
+        factory.setPackagesToScan("com.closer..*.domain");
+        factory.setDataSource(dataSource);
+        factory.getJpaPropertyMap().put("hibernate.ejb.interceptor", "com.closer.common.handler.TableMapperInterceptor");
+        factory.afterPropertiesSet();
+        return factory.getObject();
+    }
 
-                HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-                vendorAdapter.setGenerateDdl(true);
-
-                LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
-                factory.setJpaVendorAdapter(vendorAdapter);
-                factory.setPackagesToScan("com.closer..*.domain");
-                factory.setDataSource(dataSource());
-//                factory.getJpaPropertyMap().put("hibernate.ejb.naming_strategy","com.closer.common.handler.TableNamingStrategy");
-                factory.getJpaPropertyMap().put("hibernate.ejb.interceptor","com.closer.common.handler.TableMapperInterceptor");
-                factory.afterPropertiesSet();
-                return factory.getObject();
-        }
-
-        @Bean
-        public PlatformTransactionManager transactionManager() {
-
-                JpaTransactionManager txManager = new JpaTransactionManager();
-                txManager.setEntityManagerFactory(entityManagerFactory());
-                return txManager;
-        }
+    @Bean
+    public static PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
+        JpaTransactionManager txManager = new JpaTransactionManager();
+        txManager.setEntityManagerFactory(entityManagerFactory);
+        return txManager;
+    }
 }

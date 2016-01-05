@@ -9,11 +9,11 @@ public class TableNamingStrategy extends DefaultNamingStrategy {
 
     @Override
     public String classToTableName(String className) {
-        return TableProvider.getTablePrefix() + "_" + super.classToTableName(className);
+        return super.classToTableName(className).replace("#org#", TableProvider.getTablePrefix());
     }
 
     @Override
     public String tableName(String tableName) {
-        return TableProvider.getTablePrefix() + "_" + super.tableName(tableName);
+        return super.tableName(tableName).replace("#org#", TableProvider.getTablePrefix());
     }
 }
