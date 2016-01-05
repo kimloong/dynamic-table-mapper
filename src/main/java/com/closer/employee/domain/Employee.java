@@ -1,30 +1,25 @@
 package com.closer.employee.domain;
 
 
+import com.closer.common.domain.BaseDoamin;
+import com.closer.company.domain.Company;
+
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
+ * 员工实体
  * Created by Zhang Jinlong(150429) on 2016/1/4.
  */
 @Entity
-@Table(name="#org#_employee")
-public class Employee {
+@Table(name = "#org#_employee")
+public class Employee extends BaseDoamin {
 
-    @Id
-    @GeneratedValue
-    private Long id;
     private String name;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @ManyToOne
+    private Company company;
 
     public String getName() {
         return name;
@@ -32,5 +27,13 @@ public class Employee {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
     }
 }

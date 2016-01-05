@@ -1,26 +1,21 @@
 package com.closer.employee.service;
 
+import com.closer.common.service.BaseService;
+import com.closer.company.domain.Company;
+import com.closer.company.event.CompanyCreateEvent;
 import com.closer.employee.domain.Employee;
-import com.closer.employee.repository.EmployeeRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 /**
+ * 员工Service
  * Created by Zhang Jinlong(150429) on 2016/1/4.
  */
 @Service
-public class EmployeeService {
+public class EmployeeService extends BaseService<Employee> {
 
-    @Autowired
-    private EmployeeRepository repository;
+    @EventListener
+    public void handleCompanyCreate(CompanyCreateEvent event){
 
-    public List<Employee> findAll() {
-        return repository.findAll();
-    }
-
-    public Employee save(Employee employee) {
-        return repository.save(employee);
     }
 }

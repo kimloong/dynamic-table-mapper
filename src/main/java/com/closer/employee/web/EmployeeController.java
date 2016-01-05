@@ -19,7 +19,8 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Created by Zhang Jinlong(150429) on 2016/1/4.
+ * 员工控制器
+ * Created by closer on 2016/1/4.
  */
 @RestController
 @RequestMapping("/employees")
