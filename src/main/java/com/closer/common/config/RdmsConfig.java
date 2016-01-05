@@ -1,5 +1,7 @@
 package com.closer.common.config;
 
+import org.hibernate.dialect.Dialect;
+import org.hibernate.dialect.HSQLDialect;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +26,8 @@ import javax.sql.DataSource;
         includeFilters = {@ComponentScan.Filter(Repository.class)})
 @EnableTransactionManagement
 public class RdmsConfig {
+
+    public static final Dialect DIALECT = new HSQLDialect();
 
     @Bean
     public static DataSource dataSource() {

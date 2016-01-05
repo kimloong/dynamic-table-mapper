@@ -1,5 +1,6 @@
 package com.closer.employee.web;
 
+import com.closer.common.config.RdmsConfig;
 import com.closer.common.handler.TableProvider;
 import com.closer.employee.domain.Employee;
 import com.closer.employee.service.EmployeeService;
@@ -44,22 +45,16 @@ public class EmployeeController {
 
     @RequestMapping(value = "create_table/{name}", method = RequestMethod.GET)
     public void createTable(@PathVariable String name) throws SQLException {
-        TableProvider.setType(name);
-
-        Properties pros = new Properties();
-        pros.put(Environment.DIALECT, "org.hibernate.dialect.HSQLDialect");
-
         Configuration cfg = new Configuration();
         cfg.addAnnotatedClass(Employee.class);
-        cfg.setProperties(pros);
-        String[] sqls = cfg.generateSchemaCreationScript(Dialect.getDialect(pros));
+        String[] sqlArr = cfg.generateSchemaCreationScript(RdmsConfig.DIALECT);
 
         Connection connection = DataSourceUtils.getConnection(dataSource);
         try (Statement stmt=connection.createStatement()){
-            for (String sql : sqls) {
-                stmt.execute(sql.replace("#org#", TableProvider.getTablePrefix()));
+            for (String sql : sqlArr) {
+                stmt.execute(sql.replace("#org#", name));
             }
         }
-        DataSourceUtils.releaseConnection(connection,dataSource);
+        DataSourceUtils.releaseConnection(connection, dataSource);
     }
 }
