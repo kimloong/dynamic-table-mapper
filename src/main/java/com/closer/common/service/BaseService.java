@@ -1,7 +1,7 @@
 package com.closer.common.service;
 
 import com.closer.common.BaseRepository;
-import com.closer.common.domain.BaseDoamin;
+import com.closer.common.domain.BaseDomain;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by closer on 2016/1/5.
  */
-public class BaseService<T extends BaseDoamin> {
+public class BaseService<T extends BaseDomain> {
 
     @Autowired
     private BaseRepository<T> repository;

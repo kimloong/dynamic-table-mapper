@@ -1,6 +1,6 @@
 package com.closer.company.domain;
 
-import com.closer.common.domain.BaseDoamin;
+import com.closer.common.domain.BaseDomain;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -11,7 +11,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "company")
-public class Company extends BaseDoamin {
+public class Company extends BaseDomain {
 
     private String name;
     private String shortName;

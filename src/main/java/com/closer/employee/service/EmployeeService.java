@@ -1,10 +1,12 @@
 package com.closer.employee.service;
 
+import com.closer.common.helper.TableHelper;
 import com.closer.common.service.BaseService;
-import com.closer.company.domain.Company;
 import com.closer.company.event.CompanyCreateEvent;
 import com.closer.employee.domain.Employee;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,7 +17,8 @@ import org.springframework.stereotype.Service;
 public class EmployeeService extends BaseService<Employee> {
 
     @EventListener
-    public void handleCompanyCreate(CompanyCreateEvent event){
-
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public void handleCompanyCreate(CompanyCreateEvent event) {
+        TableHelper.addEntityClass(Employee.class);
     }
 }

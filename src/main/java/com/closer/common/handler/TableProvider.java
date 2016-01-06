@@ -7,28 +7,17 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class TableProvider {
 
-    public static final String DEFAULT_COLLECTION_NAME = "default";
+    private static final String DEFAULT_PREFIX = "default";
+    public static final String PREFIX = "#org#";
+    public static final String PREFIX_ = PREFIX + "_";
     private static ThreadLocal<String> typeThreadLocal = new ThreadLocal<>();
 
-    public static void setType(String type) {
+    public static void setTablePrefix(String type) {
         typeThreadLocal.set(type);
     }
 
     public static String getTablePrefix() {
-        String type = typeThreadLocal.get();
-        if (StringUtils.isNotBlank(type)) {
-            String collectionName = doMapper(type);
-            return collectionName;
-        } else {
-            return DEFAULT_COLLECTION_NAME;
-        }
-    }
-
-    private static String doMapper(String type) {
-        if (StringUtils.equals(type, "aa")) {
-            return "aa";
-        }else {
-            return "bb";
-        }
+        String prefix = typeThreadLocal.get();
+        return StringUtils.defaultString(prefix, DEFAULT_PREFIX);
     }
 }

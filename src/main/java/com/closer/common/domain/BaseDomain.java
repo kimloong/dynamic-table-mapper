@@ -2,11 +2,13 @@ package com.closer.common.domain;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 
 /**
  * Created by closer on 2016/1/5.
  */
-public class BaseDoamin {
+@MappedSuperclass
+public abstract class BaseDomain {
 
     @Id
     @GeneratedValue
