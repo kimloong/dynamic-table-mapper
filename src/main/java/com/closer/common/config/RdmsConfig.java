@@ -1,5 +1,6 @@
 package com.closer.common.config;
 
+import com.closer.common.handler.TableMapperInterceptor;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.HSQLDialect;
 import org.springframework.context.annotation.Bean;
@@ -24,10 +25,11 @@ import javax.sql.DataSource;
 @Configuration
 @EnableJpaRepositories(value = "com.closer.*",
         includeFilters = {@ComponentScan.Filter(Repository.class)})
-@EnableTransactionManagement
+@EnableTransactionManagement()
 public class RdmsConfig {
 
     public static final Dialect DIALECT = new HSQLDialect();
+    private static final String INTERCEPTOR = TableMapperInterceptor.class.getCanonicalName();
 
     @Bean
     public static DataSource dataSource() {
@@ -44,7 +46,7 @@ public class RdmsConfig {
         factory.setJpaVendorAdapter(vendorAdapter);
         factory.setPackagesToScan("com.closer..*.domain");
         factory.setDataSource(dataSource);
-        factory.getJpaPropertyMap().put("hibernate.ejb.interceptor", "com.closer.common.handler.TableMapperInterceptor");
+        factory.getJpaPropertyMap().put("hibernate.ejb.interceptor", INTERCEPTOR);
         factory.afterPropertiesSet();
         return factory.getObject();
     }

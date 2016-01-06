@@ -6,9 +6,9 @@ import com.closer.company.event.CompanyCreateEvent;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.event.EventListener;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -24,6 +24,9 @@ import java.util.List;
 @Component
 public class TableHelper {
 
+    @Autowired
+    private DataSource dataSource;
+
     public static final ThreadLocal<List<Class>> ENTITY_CLASS = new ThreadLocal<List<Class>>(){
         @Override
         protected List<Class> initialValue() {
@@ -36,14 +39,15 @@ public class TableHelper {
         entityClasses.add(entityClass);
     }
 
-    @EventListener
+    /**
+     * 处理公司新增事件，该处理将于公司新增的保存提交后执行
+     * @param event 事件
+     */
+    @TransactionalEventListener
     public void handleCompanyCreate(CompanyCreateEvent event) {
         List<Class> entityClasses = ENTITY_CLASS.get();
         createTable(entityClasses, TableProvider.PREFIX, event.getCompany().getShortName());
     }
-
-    @Autowired
-    private DataSource dataSource;
 
     public void createTable(List<Class> entityClasses, String... keyValues) {
         if (keyValues.length % 2 == 1) {

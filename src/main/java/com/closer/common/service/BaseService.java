@@ -4,11 +4,14 @@ import com.closer.common.BaseRepository;
 import com.closer.common.domain.BaseDomain;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 /**
+ * BaseService
  * Created by closer on 2016/1/5.
  */
+@Transactional
 public class BaseService<T extends BaseDomain> {
 
     @Autowired

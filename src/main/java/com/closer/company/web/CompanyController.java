@@ -5,6 +5,8 @@ import com.closer.company.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * 公司控制器
  * Created by closer on 2016/1/5.
@@ -19,6 +21,11 @@ public class CompanyController {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public Company get(@PathVariable Long id) {
         return service.findOne(id);
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    public List<Company> list() {
+        return service.findAll();
     }
 
     @RequestMapping(method = RequestMethod.POST)
