@@ -24,14 +24,15 @@ import java.util.List;
 @Component
 public class TableHelper {
 
-    public static final ThreadLocal<List<Class>> ENTITY_CLASS = new ThreadLocal<>();
+    public static final ThreadLocal<List<Class>> ENTITY_CLASS = new ThreadLocal<List<Class>>(){
+        @Override
+        protected List<Class> initialValue() {
+            return new LinkedList<>();
+        }
+    };
 
     public static void addEntityClass(Class entityClass) {
         List<Class> entityClasses = ENTITY_CLASS.get();
-        if (entityClasses == null) {
-            entityClasses = new LinkedList<>();
-            ENTITY_CLASS.set(entityClasses);
-        }
         entityClasses.add(entityClass);
     }
 
@@ -65,6 +66,7 @@ public class TableHelper {
             String msg = "创建表失败";
             throw new RuntimeException(msg, e);
         }finally {
+            ENTITY_CLASS.remove();
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
