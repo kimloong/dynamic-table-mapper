@@ -46,6 +46,7 @@ public class RdmsConfig {
         factory.setJpaVendorAdapter(vendorAdapter);
         factory.setPackagesToScan("com.closer..*.domain");
         factory.setDataSource(dataSource);
+        factory.getJpaPropertyMap().put("hibernate.ejb.naming_strategy", "org.hibernate.cfg.ImprovedNamingStrategy");
         factory.getJpaPropertyMap().put("hibernate.ejb.interceptor", INTERCEPTOR);
         factory.afterPropertiesSet();
         return factory.getObject();
