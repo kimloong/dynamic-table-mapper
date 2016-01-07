@@ -7,8 +7,11 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.ImprovedNamingStrategy;
 import org.hibernate.dialect.Dialect;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import javax.sql.DataSource;
@@ -28,7 +31,7 @@ public class TableHelper {
     @Autowired
     private DataSource dataSource;
 
-    public static final ThreadLocal<List<Class>> ENTITY_CLASS = new ThreadLocal<List<Class>>(){
+    public static final ThreadLocal<List<Class>> ENTITY_CLASS = new ThreadLocal<List<Class>>() {
         @Override
         protected List<Class> initialValue() {
             return new LinkedList<>();
@@ -42,16 +45,20 @@ public class TableHelper {
 
     /**
      * 处理公司新增事件，该处理将于公司新增的保存提交后执行
+     *
      * @param event 事件
      */
     @TransactionalEventListener
+    @Order(Ordered.LOWEST_PRECEDENCE - 1)
     public void handleCompanyCreate(CompanyCreateEvent event) {
-        try{
-            List<Class> entityClasses = ENTITY_CLASS.get();
-            createTable(entityClasses, TableProvider.PREFIX, event.getCompany().getShortName());
-        }finally {
-            ENTITY_CLASS.remove();
-        }
+        List<Class> entityClasses = ENTITY_CLASS.get();
+        createTable(entityClasses, TableProvider.PREFIX, event.getCompany().getShortName());
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMPLETION)
+    @Order
+    public void handleCompanyCreateFinal(CompanyCreateEvent event) {
+        ENTITY_CLASS.remove();
     }
 
     public void createTable(List<Class> entityClasses, String... keyValues) {
@@ -74,7 +81,7 @@ public class TableHelper {
         } catch (SQLException e) {
             String msg = "创建表失败";
             throw new RuntimeException(msg, e);
-        }finally {
+        } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }

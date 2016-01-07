@@ -3,6 +3,7 @@ package com.closer.company.service;
 import com.closer.common.service.BaseService;
 import com.closer.company.domain.Company;
 import com.closer.company.event.CompanyCreateEvent;
+import com.closer.company.repository.CompanyRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -17,6 +18,9 @@ public class CompanyService extends BaseService<Company> {
 
     @Autowired
     private ApplicationEventPublisher publisher;
+
+    @Autowired
+    private CompanyRepository repository;
 
     @Override
     public Company save(Company company) {
@@ -35,5 +39,9 @@ public class CompanyService extends BaseService<Company> {
         if (!StringUtils.isAlpha(company.getShortName())) {
             throw new RuntimeException("简称必须全部为英文");
         }
+    }
+
+    public Company findByShortName(String shortName) {
+        return repository.findByShortName(shortName);
     }
 }

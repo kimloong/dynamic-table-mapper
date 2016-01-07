@@ -3,6 +3,7 @@ package com.closer.company.domain;
 import com.closer.common.domain.BaseDomain;
 
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.Table;
 
 /**
@@ -10,7 +11,7 @@ import javax.persistence.Table;
  * Created by closer on 2016/1/5.
  */
 @Entity
-@Table(name = "company")
+@Table(name = "company",indexes = {@Index(unique = true,columnList = "shortName")})
 public class Company extends BaseDomain {
 
     private String name;
