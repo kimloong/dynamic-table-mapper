@@ -1,6 +1,6 @@
 package com.closer.company.repository;
 
-import com.closer.common.BaseRepository;
+import com.closer.common.repository.BaseRepository;
 import com.closer.company.domain.Company;
 import org.springframework.stereotype.Repository;
 

@@ -26,7 +26,7 @@ import javax.sql.DataSource;
 @EnableJpaRepositories(value = "com.closer.*",
         includeFilters = {@ComponentScan.Filter(Repository.class)})
 @EnableTransactionManagement()
-public class RdmsConfig {
+public class RDMSConfig {
 
     public static final Dialect DIALECT = new HSQLDialect();
     private static final String INTERCEPTOR = TableMapperInterceptor.class.getCanonicalName();

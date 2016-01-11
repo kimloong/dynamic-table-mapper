@@ -1,6 +1,6 @@
 package com.closer.common.helper;
 
-import com.closer.common.config.RdmsConfig;
+import com.closer.common.config.RDMSConfig;
 import com.closer.common.handler.TableProvider;
 import com.closer.company.event.CompanyCreateEvent;
 import org.hibernate.cfg.Configuration;
@@ -66,7 +66,7 @@ public class TableHelper {
             throw new RuntimeException("创建表时需要替换的字符与值应成对出现");
         }
 
-        String[] sqlArr = entity2Sql(RdmsConfig.DIALECT, entityClasses);
+        String[] sqlArr = entity2Sql(RDMSConfig.DIALECT, entityClasses);
 
         Connection connection = DataSourceUtils.getConnection(dataSource);
         try (Statement stmt = connection.createStatement()) {

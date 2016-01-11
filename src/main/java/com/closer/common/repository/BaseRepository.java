@@ -1,4 +1,4 @@
-package com.closer.common;
+package com.closer.common.repository;
 
 import com.closer.common.domain.BaseDomain;
 import org.springframework.data.jpa.repository.JpaRepository;
