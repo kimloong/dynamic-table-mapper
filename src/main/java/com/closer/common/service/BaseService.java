@@ -1,7 +1,7 @@
 package com.closer.common.service;
 
-import com.closer.common.BaseRepository;
 import com.closer.common.domain.BaseDomain;
+import com.closer.common.repository.BaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.transaction.Transactional;
