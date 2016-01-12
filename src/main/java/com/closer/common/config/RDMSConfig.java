@@ -6,6 +6,7 @@ import org.hibernate.dialect.HSQLDialect;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
@@ -23,9 +24,10 @@ import javax.sql.DataSource;
  * Created by closer on 2016/1/3.
  */
 @Configuration
-@EnableJpaRepositories(value = "com.closer.*",
+@EnableJpaRepositories(value = "com.closer",
         includeFilters = {@ComponentScan.Filter(Repository.class)})
-@EnableTransactionManagement()
+@EnableTransactionManagement
+@EnableJpaAuditing
 public class RDMSConfig {
 
     public static final Dialect DIALECT = new HSQLDialect();
