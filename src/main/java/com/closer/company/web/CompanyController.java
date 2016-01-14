@@ -45,8 +45,7 @@ public class CompanyController {
     }
 
     @RequestMapping(value = "/{id}",method = RequestMethod.PUT)
-    public Company  update(@RequestBody Map map,@PathVariable Long id) {
-//        return service.updateByJson(id,json);
-        return null;
+    public Company  update(@RequestBody Map<String,Object> map,@PathVariable Long id) {
+        return service.update(id, map);
     }
 }

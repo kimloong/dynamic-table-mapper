@@ -50,6 +50,7 @@ public class RDMSConfig {
         factory.setDataSource(dataSource);
         factory.getJpaPropertyMap().put("hibernate.ejb.naming_strategy", "org.hibernate.cfg.ImprovedNamingStrategy");
         factory.getJpaPropertyMap().put("hibernate.ejb.interceptor", INTERCEPTOR);
+        factory.getJpaPropertyMap().put("hibernate.show_sql", true);
         factory.afterPropertiesSet();
         return factory.getObject();
     }
