@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 公司控制器
@@ -41,5 +42,11 @@ public class CompanyController {
     @RequestMapping(method = RequestMethod.PUT)
     public Company  update(@RequestBody Company company) {
         return service.save(company);
+    }
+
+    @RequestMapping(value = "/{id}",method = RequestMethod.PUT)
+    public Company  update(@RequestBody Map map,@PathVariable Long id) {
+//        return service.updateByJson(id,json);
+        return null;
     }
 }

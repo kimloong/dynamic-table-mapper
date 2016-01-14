@@ -2,6 +2,7 @@ package com.closer.company.service;
 
 import com.closer.common.service.BaseService;
 import com.closer.company.domain.Company;
+import com.closer.company.event.CompanyCreateEvent;
 import com.closer.company.repository.CompanyRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class CompanyService extends BaseService<Company> {
     @Override
     public Company save(Company company) {
         check(company);
-//        publisher.publishEvent(new CompanyCreateEvent(company));
+        publisher.publishEvent(new CompanyCreateEvent(company));
         return super.save(company);
     }
 
