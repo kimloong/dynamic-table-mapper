@@ -1,6 +1,7 @@
 package com.closer.common.config;
 
 import com.closer.common.handler.TableMapperInterceptor;
+import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.HSQLDialect;
 import org.springframework.context.annotation.Bean;
@@ -34,31 +35,39 @@ public class RDMSConfig {
     private static final String INTERCEPTOR = TableMapperInterceptor.class.getCanonicalName();
 
     @Bean
-    public static DataSource dataSource() {
+    public DataSource dataSource() {
         EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
         return builder.setType(EmbeddedDatabaseType.HSQL).build();
     }
 
     @Bean
-    public static EntityManagerFactory entityManagerFactory(DataSource dataSource) {
+    public LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean() {
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         vendorAdapter.setGenerateDdl(true);
+        vendorAdapter.setShowSql(true);
 
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+
         factory.setJpaVendorAdapter(vendorAdapter);
         factory.setPackagesToScan("com.closer..*.domain");
-        factory.setDataSource(dataSource);
+        factory.setDataSource(dataSource());
         factory.getJpaPropertyMap().put("hibernate.ejb.naming_strategy", "org.hibernate.cfg.ImprovedNamingStrategy");
         factory.getJpaPropertyMap().put("hibernate.ejb.interceptor", INTERCEPTOR);
-        factory.getJpaPropertyMap().put("hibernate.show_sql", true);
+        factory.getJpaPropertyMap().put(Environment.DIALECT, DIALECT.getClass().getCanonicalName());
         factory.afterPropertiesSet();
+        return factory;
+    }
+
+    @Bean
+    public EntityManagerFactory entityManagerFactory(LocalContainerEntityManagerFactoryBean factory) {
         return factory.getObject();
     }
 
     @Bean
-    public static PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
+    public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
         JpaTransactionManager txManager = new JpaTransactionManager();
         txManager.setEntityManagerFactory(entityManagerFactory);
         return txManager;
     }
+
 }

@@ -3,9 +3,9 @@ package com.closer.employee.domain;
 
 import com.closer.common.domain.BaseDomain;
 import com.closer.common.handler.TableProvider;
+import com.closer.department.domain.Department;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * 员工实体
@@ -18,6 +18,9 @@ public class Employee extends BaseDomain {
     private String name;
 
     private String enName;
+
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.DETACH)
+    private Department department;
 
     public String getName() {
         return name;
@@ -33,5 +36,13 @@ public class Employee extends BaseDomain {
 
     public void setEnName(String enName) {
         this.enName = enName;
+    }
+
+    public Department getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
     }
 }

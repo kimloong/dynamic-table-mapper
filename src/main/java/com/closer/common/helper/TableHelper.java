@@ -6,6 +6,8 @@ import com.closer.company.event.CompanyCreateEvent;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.ImprovedNamingStrategy;
 import org.hibernate.dialect.Dialect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -18,8 +20,8 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 表处理帮助类
@@ -28,18 +30,20 @@ import java.util.List;
 @Component
 public class TableHelper {
 
+    private Logger log = LoggerFactory.getLogger(TableHelper.class);
+
     @Autowired
     private DataSource dataSource;
 
-    public static final ThreadLocal<List<Class>> ENTITY_CLASS = new ThreadLocal<List<Class>>() {
+    public static final ThreadLocal<Set<Class>> ENTITY_CLASS = new ThreadLocal<Set<Class>>() {
         @Override
-        protected List<Class> initialValue() {
-            return new LinkedList<>();
+        protected Set<Class> initialValue() {
+            return new HashSet<>();
         }
     };
 
     public static void addEntityClass(Class entityClass) {
-        List<Class> entityClasses = ENTITY_CLASS.get();
+        Set<Class> entityClasses = ENTITY_CLASS.get();
         entityClasses.add(entityClass);
     }
 
@@ -51,7 +55,7 @@ public class TableHelper {
     @TransactionalEventListener
     @Order(Ordered.LOWEST_PRECEDENCE - 1)
     public void handleCompanyCreate(CompanyCreateEvent event) {
-        List<Class> entityClasses = ENTITY_CLASS.get();
+        Set<Class> entityClasses = ENTITY_CLASS.get();
         createTable(entityClasses, TableProvider.PREFIX, event.getCompany().getShortName());
     }
 
@@ -61,7 +65,7 @@ public class TableHelper {
         ENTITY_CLASS.remove();
     }
 
-    public void createTable(List<Class> entityClasses, String... keyValues) {
+    public void createTable(Set<Class> entityClasses, String... keyValues) {
         if (keyValues.length % 2 == 1) {
             throw new RuntimeException("创建表时需要替换的字符与值应成对出现");
         }
@@ -76,6 +80,7 @@ public class TableHelper {
                     String value = keyValues[i + 1];
                     sql = sql.replace(key, value);
                 }
+                log.info("建表sql:{}",sql);
                 stmt.execute(sql);
             }
         } catch (SQLException e) {
@@ -86,7 +91,7 @@ public class TableHelper {
         }
     }
 
-    private String[] entity2Sql(Dialect dialect, List<Class> entityClasses) {
+    private String[] entity2Sql(Dialect dialect, Set<Class> entityClasses) {
         Configuration cfg = new Configuration();
         cfg.setNamingStrategy(new ImprovedNamingStrategy());
         for (Class entityClass : entityClasses) {
