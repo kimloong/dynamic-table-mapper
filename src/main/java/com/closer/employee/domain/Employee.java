@@ -19,7 +19,7 @@ public class Employee extends BaseDomain {
 
     private String enName;
 
-    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.DETACH)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
     private Department department;
 
     public String getName() {

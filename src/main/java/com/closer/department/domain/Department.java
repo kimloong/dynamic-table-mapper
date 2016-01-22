@@ -3,6 +3,8 @@ package com.closer.department.domain;
 import com.closer.common.domain.BaseDomain;
 import com.closer.common.handler.TableProvider;
 import com.closer.employee.domain.Employee;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import java.util.List;
@@ -12,10 +14,12 @@ import java.util.List;
  */
 @Entity
 @Table(name = TableProvider.PREFIX_ + "department")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Department extends BaseDomain {
 
     private String name;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "department", cascade = CascadeType.DETACH)
     private List<Employee> employees;
 

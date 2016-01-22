@@ -38,6 +38,12 @@ public class RDMSConfig {
     public DataSource dataSource() {
         EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
         return builder.setType(EmbeddedDatabaseType.HSQL).build();
+        //使用单独的HSQL服务
+//        java -cp hsqldb-2.3.3.jar org.hsqldb.Server -database.0 testdb -dbname.0 testdbname
+//        java -cp hsqldb-2.3.3.jar org.hsqldb.util.DatabaseManager -url jdbc:hsqldb:hsql://localhost/testdbname
+//        JDBCDataSource dataSource = new JDBCDataSource();
+//        dataSource.setUrl("jdbc:hsqldb:hsql://localhost/testdbname");
+//        return dataSource;
     }
 
     @Bean
@@ -59,8 +65,8 @@ public class RDMSConfig {
     }
 
     @Bean
-    public EntityManagerFactory entityManagerFactory(LocalContainerEntityManagerFactoryBean factory) {
-        return factory.getObject();
+    public EntityManagerFactory entityManagerFactory() {
+        return localContainerEntityManagerFactoryBean().getObject();
     }
 
     @Bean

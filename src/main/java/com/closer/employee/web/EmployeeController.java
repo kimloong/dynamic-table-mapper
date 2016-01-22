@@ -24,6 +24,13 @@ public class EmployeeController {
     @Autowired
     private CompanyService companyService;
 
+    @RequestMapping(value = "/{employeeId}",method = RequestMethod.GET)
+    public Employee get(@PathVariable("companyId") long companyId,@PathVariable("employeeId") long employeeId) {
+        Company company = companyService.findOne(companyId);
+        TableProvider.setTablePrefix(company.getShortName());
+        return service.findOne(employeeId);
+    }
+
     @RequestMapping(method = RequestMethod.GET)
     public List<Employee> list(@PathVariable long companyId) {
         Company company = companyService.findOne(companyId);

@@ -3,10 +3,10 @@ package com.closer.common.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.MappingException;
 import org.hibernate.engine.spi.Mapping;
-import org.hibernate.metamodel.MetadataSources;
-import org.hibernate.metamodel.source.MetadataImplementor;
+import org.hibernate.id.factory.IdentifierGeneratorFactory;
+import org.hibernate.type.Type;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -56,12 +56,31 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     }
 
     @Bean
-    public Mapping mapping(){
-        MetadataSources metadata = new MetadataSources(
-                new StandardServiceRegistryBuilder()
-                        .applySettings(rdmsConfig.localContainerEntityManagerFactoryBean().getJpaPropertyMap())
-                        .build());
-        return (MetadataImplementor) metadata.buildMetadata();
+    public Mapping mapping() {
+        //这里写使用硬编码的方式来获取id字段名，后续如需要再扩展实现
+        Mapping mapping = new Mapping() {
+            @Override
+            public IdentifierGeneratorFactory getIdentifierGeneratorFactory() {
+                return null;
+            }
+
+            @Override
+            public Type getIdentifierType(String className) throws MappingException {
+                return null;
+            }
+
+            @Override
+            public String getIdentifierPropertyName(String className) throws MappingException {
+                return "id";
+            }
+
+            @Override
+            public Type getReferencedPropertyType(String className, String propertyName) throws MappingException {
+                return null;
+            }
+        };
+
+        return mapping;
     }
 
 }
