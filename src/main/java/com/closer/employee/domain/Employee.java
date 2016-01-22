@@ -4,6 +4,7 @@ package com.closer.employee.domain;
 import com.closer.common.domain.BaseDomain;
 import com.closer.common.handler.TableProvider;
 import com.closer.department.domain.Department;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import javax.persistence.*;
 
@@ -15,10 +16,17 @@ import javax.persistence.*;
 @Table(name = TableProvider.PREFIX_ + "employee")
 public class Employee extends BaseDomain {
 
+    public interface List {
+    }
+
+    public interface Detail {
+    }
+
     private String name;
 
     private String enName;
 
+    @JsonView({Detail.class})
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
     private Department department;
 
