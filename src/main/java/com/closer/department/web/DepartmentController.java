@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
+ * 部门Controller
  * Created by closer on 2016/1/20.
  */
 @RestController
@@ -22,6 +23,14 @@ public class DepartmentController {
 
     @Autowired
     private CompanyService companyService;
+
+    @RequestMapping(value = "/{departmentId}", method = RequestMethod.GET)
+    public Department get(@PathVariable("companyId") long companyId,
+                          @PathVariable("departmentId") long departmentId) {
+        Company company = companyService.findOne(companyId);
+        TableProvider.setTablePrefix(company.getShortName());
+        return service.findOne(departmentId);
+    }
 
     @RequestMapping(method = RequestMethod.GET)
     public List<Department> list(@PathVariable long companyId) {

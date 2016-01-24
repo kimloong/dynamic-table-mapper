@@ -4,13 +4,12 @@ import com.closer.common.handler.TableMapperInterceptor;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.HSQLDialect;
+import org.hsqldb.jdbc.JDBCDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -22,6 +21,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 /**
+ * 关系型数据库配置
  * Created by closer on 2016/1/3.
  */
 @Configuration
@@ -36,14 +36,14 @@ public class RDMSConfig {
 
     @Bean
     public DataSource dataSource() {
-        EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
-        return builder.setType(EmbeddedDatabaseType.HSQL).build();
+//        EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
+//        return builder.setType(EmbeddedDatabaseType.HSQL).build();
         //使用单独的HSQL服务
 //        java -cp hsqldb-2.3.3.jar org.hsqldb.Server -database.0 testdb -dbname.0 testdbname
 //        java -cp hsqldb-2.3.3.jar org.hsqldb.util.DatabaseManager -url jdbc:hsqldb:hsql://localhost/testdbname
-//        JDBCDataSource dataSource = new JDBCDataSource();
-//        dataSource.setUrl("jdbc:hsqldb:hsql://localhost/testdbname");
-//        return dataSource;
+        JDBCDataSource dataSource = new JDBCDataSource();
+        dataSource.setUrl("jdbc:hsqldb:hsql://localhost/testdbname");
+        return dataSource;
     }
 
     @Bean

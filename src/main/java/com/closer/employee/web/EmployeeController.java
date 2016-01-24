@@ -1,6 +1,7 @@
 package com.closer.employee.web;
 
 import com.closer.common.handler.TableProvider;
+import com.closer.common.view.View;
 import com.closer.company.domain.Company;
 import com.closer.company.service.CompanyService;
 import com.closer.employee.domain.Employee;
@@ -25,6 +26,7 @@ public class EmployeeController {
     @Autowired
     private CompanyService companyService;
 
+    @JsonView(View.EagerDetail.class)
     @RequestMapping(value = "/{employeeId}",method = RequestMethod.GET)
     public Employee get(@PathVariable("companyId") long companyId,@PathVariable("employeeId") long employeeId) {
         Company company = companyService.findOne(companyId);
@@ -32,7 +34,7 @@ public class EmployeeController {
         return service.findOne(employeeId);
     }
 
-    @JsonView(Employee.List.class)
+    @JsonView(View.List.class)
     @RequestMapping(method = RequestMethod.GET)
     public List list(@PathVariable long companyId) {
         Company company = companyService.findOne(companyId);

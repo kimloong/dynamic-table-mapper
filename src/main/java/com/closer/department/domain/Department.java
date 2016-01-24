@@ -10,6 +10,7 @@ import javax.persistence.*;
 import java.util.List;
 
 /**
+ * 部门实体
  * Created by closer on 2016/1/20.
  */
 @Entity
@@ -24,6 +25,7 @@ public class Department extends BaseDomain {
     private List<Employee> employees;
 
     @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("department")
     private Employee manager;
 
     public String getName() {
