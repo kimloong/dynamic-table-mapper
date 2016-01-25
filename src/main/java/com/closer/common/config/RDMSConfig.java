@@ -1,7 +1,6 @@
 package com.closer.common.config;
 
 import com.closer.common.handler.TableMapperInterceptor;
-import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.HSQLDialect;
 import org.hsqldb.jdbc.JDBCDataSource;
@@ -18,6 +17,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.SharedCacheMode;
 import javax.sql.DataSource;
 
 /**
@@ -59,7 +59,7 @@ public class RDMSConfig {
         factory.setDataSource(dataSource());
         factory.getJpaPropertyMap().put("hibernate.ejb.naming_strategy", "org.hibernate.cfg.ImprovedNamingStrategy");
         factory.getJpaPropertyMap().put("hibernate.ejb.interceptor", INTERCEPTOR);
-        factory.getJpaPropertyMap().put(Environment.DIALECT, DIALECT.getClass().getCanonicalName());
+        factory.setSharedCacheMode(SharedCacheMode.ENABLE_SELECTIVE);
         factory.afterPropertiesSet();
         return factory;
     }

@@ -6,6 +6,7 @@ import com.closer.company.event.CompanyCreateEvent;
 import com.closer.company.repository.CompanyRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +40,12 @@ public class CompanyService extends BaseService<Company> {
         if (!StringUtils.isAlpha(company.getShortName())) {
             throw new RuntimeException("简称必须全部为英文");
         }
+    }
+
+    @Override
+    @Cacheable("companies")
+    public Company findOne(Long id) {
+        return super.findOne(id);
     }
 
     public Company findByShortName(String shortName) {

@@ -4,6 +4,7 @@ import com.closer.common.helper.TableHelper;
 import com.closer.common.service.BaseService;
 import com.closer.company.event.CompanyCreateEvent;
 import com.closer.department.domain.Department;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -19,5 +20,11 @@ public class DepartmentService extends BaseService<Department> {
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public void handleCompanyCreate(CompanyCreateEvent event) {
         TableHelper.addEntityClass(Department.class);
+    }
+
+    @Override
+    @Cacheable("departments")
+    public Department findOne(Long id) {
+        return super.findOne(id);
     }
 }
