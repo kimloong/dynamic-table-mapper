@@ -1,3 +1,50 @@
+# 基于Spring框架快速开发
+本框架并不是自己实现以下提及功能，而是基于Spring框架强大的集成能力，整合或配置
+
+## 分库支持
+
+## 分库支持
+
+## 多租户支持
+
+## 缓存支持
+
+
+
+
+
+## 问题解决及注意事项
+
+### Spring Cache使用限制
+`@Cacheable`可以注解在`Repository`上，但必须具体`Service`调用具体`Repository`时才有效，否则无效。
+
+```java
+    @Repository
+    @CacheConfig(cacheNames = "companies")
+    public interface CompanyRepository extends JpaRepository<Company,Long>{
+
+        @Override
+        @Cacheable
+        Company findOne(Long id);
+    }
+
+    @Service
+    public class CompanyService extends BaseService{
+
+        @Autowired
+        private CompanyRepository repository;
+
+        //如果这里不写repository.findOne(id)，而是使用的是BaseService的findOne，则会无效
+        @Override
+        public Company findOne(Long id) {
+            return repository.findOne(id);
+        }
+    }
+
+    //以下为正确方式
+
+```
+
 ### 解决关联实体JSON序列化死循环问题
 1. 使用`@JsonIgnore`来使用得一方可以不被序列化，常用于`1 vs n`中 `1`端的`n`属性上
 2. 使用`@JsonManagedReference`与`@JsonBackReference`对，被`@JsonBackReference`注解的属性将不会被序列化出来，目前看不出跟@JsonIgnore有啥区别
