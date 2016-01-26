@@ -46,8 +46,9 @@ public class RDMSConfig {
         return dataSource;
     }
 
+
     @Bean
-    public LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean() {
+    public EntityManagerFactory entityManagerFactory() {
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         vendorAdapter.setGenerateDdl(true);
         vendorAdapter.setShowSql(true);
@@ -61,12 +62,7 @@ public class RDMSConfig {
         factory.getJpaPropertyMap().put("hibernate.ejb.interceptor", INTERCEPTOR);
         factory.setSharedCacheMode(SharedCacheMode.ENABLE_SELECTIVE);
         factory.afterPropertiesSet();
-        return factory;
-    }
-
-    @Bean
-    public EntityManagerFactory entityManagerFactory() {
-        return localContainerEntityManagerFactoryBean().getObject();
+        return factory.getObject();
     }
 
     @Bean

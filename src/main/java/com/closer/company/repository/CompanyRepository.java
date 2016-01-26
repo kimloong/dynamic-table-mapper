@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
  * Created by closer on 2016/1/5.
  */
 @Repository
-public interface CompanyRepository extends BaseRepository<Company> {
+public interface CompanyRepository extends BaseRepository<Company>,CompanyOtherRepository {
     Company findByShortName(String shortName);
 }

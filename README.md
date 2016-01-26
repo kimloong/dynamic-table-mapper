@@ -41,7 +41,33 @@
         }
     }
 
-    //以下为正确方式
+```
+可以使用以上的方式来实现，但当你需要有一个基础`BaseService`时，就无法使用此方式，此时只能重新实现`Repository`
+
+```java
+    public interface CompanyOtherRepository {
+        Company findOne(Long id);
+    }
+
+    @Repository
+    public interface CompanyRepository extends JpaRepository<Company,Long>,CompanyOtherRepository {
+    }
+
+    @Repository
+    @CacheConfig(cacheNames = "companies")
+    public class CompanyRepositoryImpl extends SimpleJpaRepository<Company, Long> implements CompanyOtherRepository {
+
+        @Autowired
+        public CompanyRepositoryImpl(EntityManager entityManager) {
+            super(Company.class, entityManager);
+        }
+
+        @Cacheable
+        @Override
+        public Company findOne(Long id) {
+            return super.findOne(id);
+        }
+    }
 
 ```
 

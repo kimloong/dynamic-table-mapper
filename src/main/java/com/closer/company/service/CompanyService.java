@@ -6,10 +6,6 @@ import com.closer.company.event.CompanyCreateEvent;
 import com.closer.company.repository.CompanyRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +16,6 @@ import java.util.Map;
  * Created by closer on 2016/1/5.
  */
 @Service
-@CacheConfig(cacheNames = "companies")
 public class CompanyService extends BaseService<Company> {
 
     @Autowired
@@ -30,13 +25,6 @@ public class CompanyService extends BaseService<Company> {
     private CompanyRepository repository;
 
     @Override
-    @Cacheable
-    public Company findOne(Long id) {
-        return super.findOne(id);
-    }
-
-    @Override
-    @CachePut
     public Company add(Company company) {
         check(company);
         publisher.publishEvent(new CompanyCreateEvent(company));
@@ -44,14 +32,12 @@ public class CompanyService extends BaseService<Company> {
     }
 
     @Override
-    @CacheEvict
     public Company update(Company company) {
         check(company);
         return super.update(company);
     }
 
     @Override
-    @CacheEvict(key="#p0")
     public Company update(Long id, Map<String, Object> map) {
         return super.update(id, map);
     }
