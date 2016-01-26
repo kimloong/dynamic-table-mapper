@@ -43,9 +43,9 @@ public class EmployeeController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    public Employee save(@PathVariable long companyId, @RequestBody Employee employee) {
+    public Employee add(@PathVariable long companyId, @RequestBody Employee employee) {
         Company company = companyService.findOne(companyId);
         TableProvider.setTablePrefix(company.getShortName());
-        return service.save(employee);
+        return service.add(employee);
     }
 }

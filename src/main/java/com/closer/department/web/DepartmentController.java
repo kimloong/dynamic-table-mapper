@@ -40,9 +40,9 @@ public class DepartmentController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    public Department save(@PathVariable long companyId, @RequestBody Department department) {
+    public Department add(@PathVariable long companyId, @RequestBody Department department) {
         Company company = companyService.findOne(companyId);
         TableProvider.setTablePrefix(company.getShortName());
-        return service.save(department);
+        return service.add(department);
     }
 }

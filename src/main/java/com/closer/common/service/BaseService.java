@@ -42,7 +42,18 @@ public class BaseService<T extends BaseDomain> {
         return repository.findAll();
     }
 
-    public T save(T t) {
+    public T add(T t) {
+        t.setId(null);
+        return repository.save(t);
+    }
+
+    public T update(T t) {
+        if (t.getId() == null) {
+            throw new RuntimeException("主键id不能为空");
+        }
+        if (!exists(t.getId())) {
+            throw new RuntimeException("数据不存在");
+        }
         return repository.save(t);
     }
 
@@ -65,7 +76,7 @@ public class BaseService<T extends BaseDomain> {
                 }
             }
         }
-        return save(t);
+        return repository.save(t);
     }
 
     public void delete(T t) {

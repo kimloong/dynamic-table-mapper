@@ -7,10 +7,13 @@ import com.closer.company.repository.CompanyRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 /**
  * 公司Service
@@ -34,10 +37,23 @@ public class CompanyService extends BaseService<Company> {
 
     @Override
     @CachePut
-    public Company save(Company company) {
+    public Company add(Company company) {
         check(company);
         publisher.publishEvent(new CompanyCreateEvent(company));
-        return super.save(company);
+        return super.add(company);
+    }
+
+    @Override
+    @CacheEvict
+    public Company update(Company company) {
+        check(company);
+        return super.update(company);
+    }
+
+    @Override
+    @CacheEvict(key="#p0")
+    public Company update(Long id, Map<String, Object> map) {
+        return super.update(id, map);
     }
 
     private void check(Company company) {
@@ -46,9 +62,6 @@ public class CompanyService extends BaseService<Company> {
         }
         if (StringUtils.isBlank(company.getShortName())) {
             throw new RuntimeException("公司简称不能为空");
-        }
-        if (!StringUtils.isAlpha(company.getShortName())) {
-            throw new RuntimeException("简称必须全部为英文");
         }
     }
 

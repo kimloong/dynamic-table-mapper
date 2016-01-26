@@ -36,12 +36,12 @@ public class CompanyController {
 
     @RequestMapping(method = RequestMethod.POST)
     public Company  add(@RequestBody Company company) {
-        return service.save(company);
+        return service.add(company);
     }
 
     @RequestMapping(method = RequestMethod.PUT)
     public Company  update(@RequestBody Company company) {
-        return service.save(company);
+        return service.update(company);
     }
 
     @RequestMapping(value = "/{id}",method = RequestMethod.PUT)
