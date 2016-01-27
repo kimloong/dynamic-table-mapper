@@ -1,6 +1,6 @@
 package com.closer.department.domain;
 
-import com.closer.common.domain.BaseDomain;
+import com.closer.common.domain.BaseTenantDomain;
 import com.closer.common.handler.TableProvider;
 import com.closer.employee.domain.Employee;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -15,8 +15,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = TableProvider.PREFIX_ + "department")
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class Department extends BaseDomain {
+public class Department extends BaseTenantDomain {
 
     private String name;
 

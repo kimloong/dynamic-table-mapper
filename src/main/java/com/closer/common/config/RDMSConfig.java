@@ -27,7 +27,7 @@ import javax.sql.DataSource;
 @Configuration
 @EnableJpaRepositories(value = "com.closer",
         includeFilters = {@ComponentScan.Filter(Repository.class)})
-@EnableTransactionManagement
+@EnableTransactionManagement(proxyTargetClass = true)
 @EnableJpaAuditing
 public class RDMSConfig {
 

@@ -2,7 +2,8 @@ package com.closer.common.helper;
 
 import com.closer.common.config.RDMSConfig;
 import com.closer.common.handler.TableProvider;
-import com.closer.company.event.CompanyCreateEvent;
+import com.closer.tenant.event.TenantCreateEvent;
+import com.closer.tenant.service.TenantSupport;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.ImprovedNamingStrategy;
 import org.hibernate.dialect.Dialect;
@@ -13,14 +14,15 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -35,18 +37,18 @@ public class TableHelper {
     @Autowired
     private DataSource dataSource;
 
-    public static final ThreadLocal<Set<Class>> ENTITY_CLASS = new ThreadLocal<Set<Class>>() {
-        @Override
-        protected Set<Class> initialValue() {
-            return new HashSet<>();
+    @Autowired
+    private List<TenantSupport> tenantSupports;
+
+    private Set<Class> entityClasses;
+
+    @PostConstruct
+    public void postConstruct() {
+        entityClasses = new HashSet<>();
+        for (TenantSupport tenantSupport : tenantSupports) {
+            entityClasses.addAll(tenantSupport.getEntities());
         }
-    };
-
-    public static void addEntityClass(Class entityClass) {
-        Set<Class> entityClasses = ENTITY_CLASS.get();
-        entityClasses.add(entityClass);
     }
-
     /**
      * 处理公司新增事件，该处理将于公司新增的保存提交后执行
      *
@@ -54,15 +56,9 @@ public class TableHelper {
      */
     @TransactionalEventListener
     @Order(Ordered.LOWEST_PRECEDENCE - 1)
-    public void handleCompanyCreate(CompanyCreateEvent event) {
-        Set<Class> entityClasses = ENTITY_CLASS.get();
-        createTable(entityClasses, TableProvider.PREFIX, event.getCompany().getShortName());
-    }
-
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMPLETION)
-    @Order
-    public void handleCompanyCreateFinal(CompanyCreateEvent event) {
-        ENTITY_CLASS.remove();
+    public void handleCompanyCreate(TenantCreateEvent event) {
+        TableProvider.setTenant(event.getTenant());
+        createTable(entityClasses, TableProvider.PREFIX, " IF NOT EXISTS " + TableProvider.getTablePrefix());
     }
 
     public void createTable(Set<Class> entityClasses, String... keyValues) {

@@ -24,11 +24,6 @@ public class CompanyController {
         return service.findOne(id);
     }
 
-    @RequestMapping(value = "/short_name/{shortName}", method = RequestMethod.GET)
-    public Company getByShortName(@PathVariable String shortName) {
-        return service.findByShortName(shortName);
-    }
-
     @RequestMapping(method = RequestMethod.GET)
     public List<Company> list() {
         return service.findAll();

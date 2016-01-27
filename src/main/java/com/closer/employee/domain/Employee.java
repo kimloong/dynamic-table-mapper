@@ -1,7 +1,7 @@
 package com.closer.employee.domain;
 
 
-import com.closer.common.domain.BaseDomain;
+import com.closer.common.domain.BaseTenantDomain;
 import com.closer.common.handler.TableProvider;
 import com.closer.common.view.View;
 import com.closer.department.domain.Department;
@@ -15,7 +15,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = TableProvider.PREFIX_ + "employee")
-public class Employee extends BaseDomain {
+public class Employee extends BaseTenantDomain {
 
     private String name;
 

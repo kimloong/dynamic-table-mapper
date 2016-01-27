@@ -1,6 +1,5 @@
 package com.closer.common.config;
 
-import com.closer.company.domain.Company;
 import com.closer.department.domain.Department;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
@@ -75,8 +74,7 @@ public class RedisConfig {
     @Bean
     public CacheManager cacheManager() {
         Set<CacheManager> cacheManagers = new HashSet<>();
-        cacheManagers.add(getCacheManager(Company.class, "companies"));
-        cacheManagers.add(getCacheManager(Department.class, "departments"));
+        cacheManagers.add(getCacheManager(Department.class, "tenants"));
         CompositeCacheManager cacheManager = new CompositeCacheManager();
         cacheManager.setCacheManagers(cacheManagers);
         cacheManager.afterPropertiesSet();

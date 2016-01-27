@@ -1,5 +1,6 @@
 package com.closer.common.config;
 
+import com.closer.common.handler.TenantHandlerInterceptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
@@ -7,7 +8,6 @@ import org.hibernate.MappingException;
 import org.hibernate.engine.spi.Mapping;
 import org.hibernate.id.factory.IdentifierGeneratorFactory;
 import org.hibernate.type.Type;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +15,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import java.util.List;
@@ -27,8 +28,16 @@ import java.util.List;
 @ComponentScan(value = "com.closer", includeFilters = @ComponentScan.Filter(Controller.class))
 public class WebConfig extends WebMvcConfigurerAdapter {
 
-    @Autowired
-    private RDMSConfig rdmsConfig;
+    @Bean
+    public TenantHandlerInterceptor tenantHandlerInterceptor() {
+        return new TenantHandlerInterceptor();
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(tenantHandlerInterceptor());
+        super.addInterceptors(registry);
+    }
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {

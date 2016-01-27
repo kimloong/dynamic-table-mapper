@@ -24,10 +24,6 @@ public class BaseService<T extends BaseDomain> {
 
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
-    public Logger getLog() {
-        return log;
-    }
-
     @Autowired
     private BaseRepository<T> repository;
 
@@ -76,7 +72,7 @@ public class BaseService<T extends BaseDomain> {
                 }
             }
         }
-        return repository.save(t);
+        return update(t);
     }
 
     public void delete(T t) {

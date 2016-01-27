@@ -1,6 +1,6 @@
 package com.closer.company.repository;
 
-import com.closer.common.repository.BaseRepository;
+import com.closer.common.repository.BaseTenantRepository;
 import com.closer.company.domain.Company;
 import org.springframework.stereotype.Repository;
 
@@ -9,6 +9,5 @@ import org.springframework.stereotype.Repository;
  * Created by closer on 2016/1/5.
  */
 @Repository
-public interface CompanyRepository extends BaseRepository<Company>,CompanyOtherRepository {
-    Company findByShortName(String shortName);
+public interface CompanyRepository extends BaseTenantRepository<Company> {
 }
