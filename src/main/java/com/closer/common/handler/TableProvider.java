@@ -26,11 +26,19 @@ public class TableProvider {
     }
 
     public static long getTenantId() {
-        return tenantThreadLocal.get().getId();
+        Tenant tenant = tenantThreadLocal.get();
+        if (tenant == null) {
+            throw new RuntimeException("未标识您请求的是租户id");
+        }
+        return tenant.getId();
     }
 
     public static String getDataSoureName() {
-        return tenantThreadLocal.get().getDataSourceName();
+        Tenant tenant = tenantThreadLocal.get();
+        if (tenant == null) {
+            return "";
+        }
+        return tenant.getDataSourceName();
     }
 
     public static void clear() {

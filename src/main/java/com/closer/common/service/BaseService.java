@@ -34,6 +34,14 @@ public class BaseService<T extends BaseDomain> {
         return repository.findOne(id);
     }
 
+    public T findStrictOne(Long id) {
+        T t = findOne(id);
+        if (t == null) {
+            throw new RuntimeException("未找到指定id的对象");
+        }
+        return t;
+    }
+
     public List<T> findAll() {
         return repository.findAll();
     }
