@@ -14,6 +14,12 @@
 
 
 ## 问题解决及注意事项
+### 动态`DataSource`的问题，此处的实现为`DynamicRoutingDataSource`
+`Service`方法(包括`Service`方法再调用其它方法)将会共用同一个数据库连接，即在`Service`方法，
+无法进行数据源的切换，进入`Service`方法时，会从`DataSource`中请求数据库连接，这也使事务得到发挥作用。
+如果要切换`DataSource`，则可以使用切换线程来实现
+
+### `@Async`在debug状态下，会使整个请求挂起
 
 ### Spring Cache使用限制
 `@Cacheable`可以注解在`Repository`上，但必须具体`Service`调用具体`Repository`时才有效，否则无效。
@@ -70,6 +76,7 @@
     }
 
 ```
+注：此处`CompanyOtherRepository`不是必需的
 
 ### 解决关联实体JSON序列化死循环问题
 1. 使用`@JsonIgnore`来使用得一方可以不被序列化，常用于`1 vs n`中 `1`端的`n`属性上
