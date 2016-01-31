@@ -127,9 +127,13 @@ public class TenantRepositoryImpl extends SimpleJpaRepository<Tenant, Long> {
 Spring提供了多个缓存操作的注解
 
 > `@Cacheable` triggers cache population
+
 > `@CacheEvict` triggers cache eviction
+
 > `@CachePut` updates the cache without interfering with the method execution
+
 > `@Caching` regroups multiple cache operations to be applied on a method
+
 > `@CacheConfig` shares some common cache-related settings at class-level
 
 通过上面的展示，我们的应用代码不依赖于具体的缓存实现，后续如果需要变更缓存实现，
