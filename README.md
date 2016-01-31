@@ -5,16 +5,15 @@
 ## 使用到的相关开源技术及版本
 
     1. Spring               4.2.4.RELEASE
-    2. spring-data-jpa      1.9.2.RELEASE
-    3. spring-data-redis    1.6.2.RELEASE
-    4. jackson              2.4.5
-    5. hibernate            4.3.6.Final
+    2. Spring Data JPA      1.9.2.RELEASE
+    3. Spring Data Redis    1.6.2.RELEASE
+    4. Jackson              2.4.5
+    5. Hibernate            4.3.6.Final
 
-各开源技术之前可能会涉及到版本的不兼容，因此应该尽量小心。
+各开源项目之间可能会有版本不兼容，因此应该尽量小心，可以参考本配置。
 
 ## 分库支持
-此处使用多数据源连接来实现分库，实现`Spring`提供的`AbstractRoutingDataSource`抽象类，
-仅需实现`determineCurrentLookupKey`方法即可。
+此处使用多数据源连接来实现分库，实现Spring提供的`AbstractRoutingDataSource`抽象类，仅需实现`determineCurrentLookupKey`方法即可。
 
 实现多数据源支持
 ```java
@@ -51,13 +50,12 @@ public class DynamicRoutingDataSource extends AbstractRoutingDataSource{
 
 ## 分库支持
 
-由于`Spring Data JPA`对JPA规范中的`@Table`使用SpEL，所以无法直接使用`@Table`来动
-态实现表路由，此处借助Hibernate提供的`Interceptor`，我们可以看下官方对该接口的说明
+由于`Spring Data JPA`对JPA规范中的`@Table`使用SpEL，所以无法直接使用`@Table`来动态实现表路由，此处借助Hibernate提供的`Interceptor`，我们可以看下官方对该接口的说明
 
 > Inspection occurs before property values are written and after they are read
 > from the database.
 
-即使用该接口可以实现Hibernate与数据库进行交互时，对请求与返回进行处理的拦截器。Hibernate
+即使用该接口可以实现Hibernate与数据库进行交互时，对请求与返回进行处理。Hibernate
 提供了这个拦截器的空实现`EmptyInterceptor`，此处我们只需继承并重写`onPrepareStatement`
 方法即可。
 表映射拦截器实现
@@ -95,8 +93,7 @@ public class Demo {
 
 ## 缓存支持
 
-借助Spring对Cache的支持，我们可以“优雅”的使用缓存，并且是无需关心缓存实现的，
-以下我们展示下缓存的配置与使用。
+借助Spring对Cache的支持，我们可以“优雅”的使用缓存，并且是无需关心缓存实现，以下我们展示下缓存的配置与使用。
 缓存配置，注册一个CacheManager实例
 ```java
     @Bean
@@ -158,15 +155,12 @@ public interface UserRepository extends JpaRepository<User,Long> {
     User findByName(String name);
 }
 ```
-我们通过定义接口`UserRepository`的`findByName`方法，就实现了通过用户名获取用户的数据库查询。
-同时在`JpaRepository`中提供了基础的、基于泛型的CRUD数据库操作。
+我们通过定义接口`UserRepository`的`findByName`方法，就实现了通过用户名获取用户的数据库查询。同时在`JpaRepository`中提供了基础的、基于泛型的CRUD数据库操作。
 
-注：Spring在服务启动时会，会检测方法名是否合法，如对于`findByName`方法，如果实体没有`name`属性，
-将会报错，因此基于此种方式构建的Dao层将会更“可依赖”，可以减少我们的测试量。
+注：Spring在服务启动时会，会检测方法名是否合法，如对于`findByName`方法，如果实体没有`name`属性，将会报错，因此基于此种方式构建的Dao层将会更“可信赖”，可以减少我们的测试量。
 
 ### 同一实体返回不同投影给客户端
-我们经常会遇到【列表请求】与【详情请求】需要包含不同的字段，以减小网络的传输量，借助Spring Mvc
-对`@JsonView`的支持，我们无需再定义额外`Vo`来实现。
+我们经常会遇到【列表请求】与【详情请求】需要包含不同的字段，以减小网络的传输量，借助Spring Mvc对`@JsonView`的支持，我们无需再定义额外`Vo`来实现。
 控制器定义
 ```java
 @RestController
@@ -210,16 +204,12 @@ public class Employee extends BaseTenantDomain {
 }
 
 ```
-我们在控制器方法`get`指定`@JsonView(DetailView.class)`表示返回的Json将仅包含`Employee`中
-未使用`@JsonView`注解及使用`@JsonView`注解且包含DetailView.class的字段。
+我们在控制器方法`get`指定`@JsonView(DetailView.class)`表示返回的Json将仅包含`Employee`中未使用`@JsonView`注解及使用`@JsonView`注解且包含DetailView.class的字段。
 
 ### 提供增量式修改方法
-有时我们仅需要修改部分字段，而传统`update`方法为覆盖式的，当你的某个字段没传时，也会被覆盖为空，
-因此此处特地增加了`BaseService.update(Long id, Map<String, Object> map)`方法，允许增量修改
-字段，而不需要修改的可以不传。
+有时我们仅需要修改部分字段，而传统`update`方法为覆盖式的，当你的某个字段没传时，也会被覆盖为空，因此此处特地增加了`BaseService.update(Long id, Map<String, Object> map)`方法，允许增量修改字段，而不需要修改的可以不传。
 
-注：还有另外一种相似的修改场景，操作A仅能修改字段集合a，操作B仅能修改字段集合b，目前暂未支持该功能，
-但应该可以结合类似`@JsonView`的方式来实现。
+注：还有另外一种相似的修改场景，操作A仅能修改字段集合a，操作B仅能修改字段集合b，目前暂未支持该功能，但应该可以结合类似`@JsonView`的方式来实现。
 
 ## 一些思考
 本人的一些思考分享，不一定对，欢迎探讨
@@ -234,11 +224,10 @@ public class Employee extends BaseTenantDomain {
 
 
 ### Service层是否需要接口
-如果代码编写（非框构代码设计）过程需要经常改动到继承体系中的代码，意味着没办法形成稳定的契约，则该继
-承体系也许根本不需要存在。我们常说的面向接口编程，是为了不依赖于实现，而对于业务系统来说，则没有多种
-业务实现。
-在我们最常使用接口的MVC三层架构中，原来的接口可能是为了使用Proxy来提供动态代理，因此必须要定义接口，
-而现在使用cglib，则没必要了。
+如果代码（非框架代码）编写过程需要经常改动到继承体系中的代码，意味着无法形成稳定的契约，则该继承体系根本不需要存在。我们常说的面向接口编程，是为了不依赖于实现，而对于业务系统来说，则没有多种业务实现。
+
+在我们最常使用接口的MVC三层架构中，原来的接口可能是为了使用Proxy来提供动态代理，因此必须要定义接口，而现在使用cglib，则没必要了。
+
 简单来说，继承体系仅对框架有意义，而对于业务代码，则会成为开发与维护的累赘。
 
 ## 问题解决及注意事项
@@ -246,9 +235,7 @@ public class Employee extends BaseTenantDomain {
 此处记录本人在整合过程中遇到的一些问题及后续引用该框架的开发者需要注意的事项。
 
 ### 动态`DataSource`的问题，此处的实现为`DynamicRoutingDataSource`
-`Service`方法(包括`Service`方法再调用其它方法)将会共用同一个数据库连接，即在`Service`方法，
-无法进行数据源的切换，进入`Service`方法时，会从`DataSource`中请求数据库连接，这也使事务得到发挥作用。
-如果要切换`DataSource`，则可以使用切换线程来实现
+`Service`方法(包括`Service`方法再调用其它方法)将会共用同一个数据库连接，即在`Service`方法，无法进行数据源的切换，进入`Service`方法时，会从`DataSource`中请求数据库连接，这也使事务得到发挥作用。如果要切换`DataSource`，则可以使用切换线程来实现
 
 ### `@Async`在debug状态下，会使整个请求挂起,此时不要误认为异步无效。
 
@@ -328,5 +315,7 @@ public class Employee extends BaseTenantDomain {
 
 ## 参考文献
 [Spring Framework Reference](http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/)
+
 [Spring Data JPA Reference](http://docs.spring.io/spring-data/jpa/docs/1.8.2.RELEASE/reference/html/)
+
 [Spring Data Redis Reference](http://docs.spring.io/spring-data/redis/docs/1.6.2.RELEASE/reference/html/)
