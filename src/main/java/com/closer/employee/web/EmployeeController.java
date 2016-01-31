@@ -1,7 +1,6 @@
 package com.closer.employee.web;
 
 import com.closer.common.view.View;
-import com.closer.company.service.CompanyService;
 import com.closer.employee.domain.Employee;
 import com.closer.employee.service.EmployeeService;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -20,9 +19,6 @@ public class EmployeeController {
 
     @Autowired
     private EmployeeService service;
-
-    @Autowired
-    private CompanyService companyService;
 
     @JsonView(View.EagerDetail.class)
     @RequestMapping(value = "/employees/{employeeId}",method = RequestMethod.GET)
