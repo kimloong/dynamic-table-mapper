@@ -244,7 +244,7 @@ public class Employee extends BaseTenantDomain {
 ### `@Async`在debug状态下，会使整个请求挂起,此时不要误认为异步无效。
 
 ### Spring Cache使用限制
-`@Cacheable`可以注解在`Repository`上，但必须具体`Service`调用具体`Repository`时才有效，否则无效。
+`@Cacheable`可以注解在`Repository`上，但如果是`JpaRepository`自带的默认方法，则无效，因为Spring直接注入的是SimpleJpaRepository实例。
 
 ```java
     @Repository
@@ -315,6 +315,20 @@ public class Employee extends BaseTenantDomain {
 ```
 
 综上的方式，1跟2没有区别，可以使用1来得简单，1与3的效果不同，所以在使用上可以很容易区分。
+
+
+### 解决Json无法反序列化`List<Demo>`
+反序列化时可以指定类型如
+```java
+ObjectMapper mapper = new ObjectMapper();
+mapper.readValue(json,Demo.class);
+```
+当json为Demo的一个实例时，可以反序列化成功，当为Demo的数组时，则会失败，此时可以使用以下方法来处理。
+```java
+ObjectMapper mapper = new ObjectMapper();
+mapper.readValue(json,
+        mapper.getTypeFactory().constructCollectionType(List.class, Demo.class));
+```
 
 
 ## 参考文献
