@@ -16,6 +16,7 @@
 此处使用多数据源连接来实现分库，实现Spring提供的`AbstractRoutingDataSource`抽象类，仅需实现`determineCurrentLookupKey`方法即可。
 
 实现多数据源支持
+
 ```java
 public class DynamicRoutingDataSource extends AbstractRoutingDataSource{
 
@@ -25,7 +26,9 @@ public class DynamicRoutingDataSource extends AbstractRoutingDataSource{
     }
 }
 ```
+
 进行数据源配置
+
 ```java
     @Bean
     public DataSource dataSource() {
@@ -210,6 +213,42 @@ public class Employee extends BaseTenantDomain {
 ```
 我们在控制器方法`get`指定`@JsonView(DetailView.class)`表示返回的Json将仅包含`Employee`中未使用`@JsonView`注解及使用`@JsonView`注解且包含DetailView.class的字段。
 
+### 审计
+Spring Data提供了`@CreatedDate`(创建时间)、`@CreatedBy`(创建人)、`@LastModifiedDate`(最后更新时间)、`@LastModifiedBy`(最后更新人)四个注解来注解实体字段，被注解的字段在实体保存时将会被自动赋值。
+
+使用`@EnableJpaAuditing`启用审计
+```java
+@Configuration
+@EnableJpaAuditing
+public class RDMSConfig {
+}
+```
+实体定义
+```java
+@Entity
+@EntityListeners(AuditingEntityListener.class)
+public class Demo {
+
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @LastModifiedDate
+    private long updateTime;
+
+    @CreatedDate
+    @Column(updatable = false)
+    private long createTime;
+    
+    //省略getter/setter方法
+}
+```
+注意：
+* `@CreateDate`需要同时使用`@Column(updatable = false)`注解，否则实体更新时，可能会被覆盖。
+* 实体需要使用`@EntityListeners(AuditingEntityListener.class)`注解
+* `@CreatedBy`与`@LastModifiedBy`会稍微复杂点，请阅读[Spring Data JPA Reference](http://docs.spring.io/spring-data/jpa/docs/1.8.2.RELEASE/reference/html/)。 
+
+
 ### 提供增量式修改方法
 有时我们仅需要修改部分字段，而传统`update`方法为覆盖式的，当你的某个字段没传时，也会被覆盖为空，因此此处特地增加了`BaseService.update(Long id, Map<String, Object> map)`方法，允许增量修改字段，而不需要修改的可以不传。
 
@@ -329,6 +368,40 @@ ObjectMapper mapper = new ObjectMapper();
 mapper.readValue(json,
         mapper.getTypeFactory().constructCollectionType(List.class, Demo.class));
 ```
+
+### 实现一个继承体系多类型ID及生成器
+有时在继承体系中，我们需要使用不同类型的ID，如Long或String，或需要使用到不同类型的ID生成器，如identity或uuid，为了避免因此我们要重起一个继承体系，我们可以使用此处提到的方法。
+定义基类，id使用泛型
+```java
+@MappedSuperclass
+public class BaseIdDomain<ID extends Serializable> {
+
+    @Id
+    @GeneratedValue(generator="id")
+    private ID id;
+
+    //省略getter/setter方法
+}
+```
+定义子类，此处指定了id为`String`类型，使用`@GenericGenerator`来指定具体的策略。
+```java
+@Entity
+@GenericGenerator(name = "id", strategy = "uuid2")
+public class Demo extends BaseIdDomain<String> {
+
+    //省略其它的字段定义
+}
+```
+注意
+* 这里的`name`需要与基类`@GeneratedValue`中的`generator`属性相同。
+* 这里的`strategy`可以是Hibernate已建，也可以使用自定义的，自定义的使用全限定路径，实现`IdentifierGenerator`接口。以下为常用的已建策略，更多已建策略可以查看`DefaultIdentifierGeneratorFactory`类。
+
+    sequence:       调用底层数据库的序列来生成主键，要设定序列名，不然hibernate无法找到。
+    identity:       使用SQL Server和MySQL的自增字段，Oracle 不支持自增字段
+    uuid和uuid.hex: 两者使用同一个生成器，生成不带分隔符的uuid，32位
+    uuid2：         生成带分隔符的uuid(8-4-4-4-12),36位
+    assigned：      根据用户设置值来做id，如果用户不设置，会抛出异常
+
 
 
 ## 参考文献
