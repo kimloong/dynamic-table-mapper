@@ -143,6 +143,7 @@ Spring提供了多个缓存操作的注解
 我们无需更改我们的应用代码。而且对于后续扩展对新类型缓存的支持也将会很简便，该
 缓存仅需实现Spring的`CacheManager`接口即可。
 目前Spring 支持的常用缓存类型有：
+
 1. Guava
 2. ConcurrentMap
 3. EhCache
@@ -396,11 +397,11 @@ public class Demo extends BaseIdDomain<String> {
 * 这里的`name`需要与基类`@GeneratedValue`中的`generator`属性相同。
 * 这里的`strategy`可以是Hibernate已建，也可以使用自定义的，自定义的使用全限定路径，实现`IdentifierGenerator`接口。以下为常用的已建策略，更多已建策略可以查看`DefaultIdentifierGeneratorFactory`类。
 
-    sequence:       调用底层数据库的序列来生成主键，要设定序列名，不然hibernate无法找到。
-    identity:       使用SQL Server和MySQL的自增字段，Oracle 不支持自增字段
-    uuid和uuid.hex: 两者使用同一个生成器，生成不带分隔符的uuid，32位
-    uuid2：         生成带分隔符的uuid(8-4-4-4-12),36位
-    assigned：      根据用户设置值来做id，如果用户不设置，会抛出异常
+        sequence:       调用底层数据库的序列来生成主键，要设定序列名，不然hibernate无法找到。
+        identity:       使用SQL Server和MySQL的自增字段，Oracle 不支持自增字段
+        uuid和uuid.hex: 两者使用同一个生成器，生成不带分隔符的uuid，32位
+        uuid2：         生成带分隔符的uuid(8-4-4-4-12),36位
+        assigned：      根据用户设置值来做id，如果用户不设置，会抛出异常
 
 
 
