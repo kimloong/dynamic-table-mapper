@@ -16,9 +16,8 @@ import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializer;
 import redis.clients.jedis.JedisPoolConfig;
 
 import java.io.IOException;
@@ -70,11 +69,9 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<Object, Object> redisTemplate() {
-        RedisSerializer redisSerializer = new GenericJackson2JsonRedisSerializer(webConfig.objectMapper());
-        RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
+    public StringRedisTemplate redisTemplate() {
+        StringRedisTemplate redisTemplate = new StringRedisTemplate();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
-        redisTemplate.setDefaultSerializer(redisSerializer);
         redisTemplate.afterPropertiesSet();
         return redisTemplate;
     }
