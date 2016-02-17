@@ -27,12 +27,12 @@ public class EmployeeController {
     }
 
     @JsonView(View.List.class)
-    @RequestMapping(value = "{companyId}/employees",method = RequestMethod.GET)
+    @RequestMapping(value = "/{companyId}/employees", method = RequestMethod.GET)
     public List list(@PathVariable long companyId) {
         return service.findAll();
     }
 
-    @RequestMapping(value = "/employees",method = RequestMethod.POST)
+    @RequestMapping(value = "/{companyId}/employees", method = RequestMethod.POST)
     public Employee add(@PathVariable long companyId, @RequestBody Employee employee) {
         return service.add(employee);
     }

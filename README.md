@@ -214,6 +214,8 @@ public class Employee extends BaseTenantDomain {
 ```
 我们在控制器方法`get`指定`@JsonView(DetailView.class)`表示返回的Json将仅包含`Employee`中未使用`@JsonView`注解及使用`@JsonView`注解且包含DetailView.class的字段。
 
+注：`@JsonView`在使用的时候要注意，多个有互相关联的实体间，不要使用公共定义的`ViewClass`，应该在类中自己定义，以免容易互相影响。
+
 ### 审计
 Spring Data提供了`@CreatedDate`(创建时间)、`@CreatedBy`(创建人)、`@LastModifiedDate`(最后更新时间)、`@LastModifiedBy`(最后更新人)四个注解来注解实体字段，被注解的字段在实体保存时将会被自动赋值。
 

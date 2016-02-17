@@ -66,21 +66,45 @@ public class BaseService<T extends BaseDomain> {
         if (t == null) {
             throw new RuntimeException("找不到相关对象");
         }
+        updateByMap(t, map);
+        return update(t);
+    }
+
+    private void updateByMap(Object t, Map<String, Object> map) {
         BeanMap beanMap = new BeanMap(t);
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             String key = CONVERTER.convert(entry.getKey());
+            Object value = entry.getValue();
             Method method = beanMap.getWriteMethod(key);
             if (method != null) {
-                try {
-                    method.invoke(t, entry.getValue());
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    log.debug("未找到属性{}", entry.getKey());
-                } catch (IllegalArgumentException e) {
-                    throw new RuntimeException(entry.getKey() + "参数类型错误");
+                Class fieldType = method.getParameterTypes()[0];
+                if (BaseDomain.class.isAssignableFrom(fieldType)) {
+                    //field的真实类型实例
+                    try {
+                        Object fieldDomain = fieldType.newInstance();
+                        updateByMap(fieldDomain, (Map) value);
+                        setFieldValue(method, t, key, fieldDomain);
+                    } catch (InstantiationException | IllegalAccessException e) {
+                        throw new RuntimeException("无法实例类型" + fieldType.getCanonicalName()
+                                + ",可能由于缺少无参构造函数");
+                    }
+                } else if (fieldType.equals(Long.class) && value instanceof Integer) {
+                    setFieldValue(method, t, key, Long.parseLong(String.valueOf(value)));
+                } else {
+                    setFieldValue(method, t, key, value);
                 }
             }
         }
-        return update(t);
+    }
+
+    private void setFieldValue(Method method, Object t, String key, Object value) {
+        try {
+            method.invoke(t, value);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            log.debug("未找到属性{}", key);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(key + "参数类型错误");
+        }
     }
 
     public void delete(T t) {
