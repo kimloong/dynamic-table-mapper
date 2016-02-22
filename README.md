@@ -150,8 +150,26 @@ Spring提供了多个缓存操作的注解
 4. JCache
 5. Redis，可以参考本项目的RedisConfig的配置
 
-注：要特别注意分布式缓存的与Hibernate结合时，延迟加载属性的序列化问题。可以阅读
-本人的博文[一个Memcache+Hibernate自处理二级缓存问题](http://blog.csdn.net/zjl103/article/details/45484633)
+注：
+
+1. 要特别注意分布式缓存的与Hibernate结合时，延迟加载属性的序列化问题。可以阅读
+本人的博文[一个Memcache+Hibernate自处理二级缓存问题](http://blog.csdn.net/zjl103/article/details/45484633);
+2. Spring官网推荐在具体类上使用`@Cache*`注解，而不是接口上;
+3. `update`方法应该使用`@CacheEvict`而不是`@CachePut`;
+4. 要 *注意* cache与事务的关系，在Spring Cache中，缓存操作位于被注解方法的执行前后（可以通过），因此如遇到如下场景，
+则会缓存到脏数据。缓存的相关实现可以查看代码，核心代码`CacheInterceptor`。部分`CacheManager`继承自`AbstractTransactionSupportingCacheManager`,
+则可通过`setTransactionAware（true）`来使用得缓存在事务提交后执行。
+
+```java
+        //annotate with @CacheEvict
+        repository.save(t);
+        //annotate with @Cacheable
+        repository.findOne(t.getId());
+        if (true) {
+            throw new RuntimeException("");
+        }
+```
+
 
 ## 框架为我们做了什么
 
