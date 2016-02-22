@@ -13,7 +13,8 @@ public class WebInitializer extends AbstractAnnotationConfigDispatcherServletIni
 
     @Override
     protected Class<?>[] getServletConfigClasses() {
-        return new Class<?>[]{WebConfig.class, ServiceConfig.class, RDMSConfig.class, RedisConfig.class};
+        return new Class<?>[]{WebConfig.class, ServiceConfig.class, RDMSConfig.class,
+                RedisConfig.class, QuartzConfig.class};
     }
 
     @Override
