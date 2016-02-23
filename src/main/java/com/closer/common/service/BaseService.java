@@ -51,14 +51,23 @@ public class BaseService<T extends BaseDomain> {
         return repository.save(t);
     }
 
-    public T update(T t) {
+    /**
+     * 尽量保护update方法，使得不被滥用，如果仅是修改部分字段时，
+     * 应该在Service中定义相应的需求方法，底层调用该方法
+     */
+    protected T update(T t) {
         if (t.getId() == null) {
             throw new RuntimeException("主键id不能为空");
         }
         if (!exists(t.getId())) {
             throw new RuntimeException("数据不存在");
         }
-        return repository.save(t);
+        repository.save(t);
+        repository.findOne(t.getId());
+        if (true) {
+            throw new RuntimeException("");
+        }
+        return t;
     }
 
     public T update(Long id, Map<String, Object> map) {

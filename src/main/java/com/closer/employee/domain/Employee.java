@@ -6,8 +6,11 @@ import com.closer.common.handler.TableProvider;
 import com.closer.common.view.View;
 import com.closer.department.domain.Department;
 import com.fasterxml.jackson.annotation.JsonView;
+import org.apache.commons.lang3.time.DateUtils;
 
 import javax.persistence.*;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * 员工实体
@@ -20,6 +23,8 @@ public class Employee extends BaseTenantDomain {
     private String name;
 
     private String enName;
+
+    private Long birthday;
 
     @JsonView(View.EagerDetail.class)
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
@@ -47,5 +52,19 @@ public class Employee extends BaseTenantDomain {
 
     public void setDepartment(Department department) {
         this.department = department;
+    }
+
+    public Date getBirthday() {
+        if (birthday == null) {
+            return null;
+        }
+        return new Date(birthday);
+    }
+
+    public void setBirthday(Date birthday) {
+        if (birthday == null) {
+            this.birthday = null;
+        }
+        this.birthday = DateUtils.truncate(birthday, Calendar.HOUR).getTime();
     }
 }

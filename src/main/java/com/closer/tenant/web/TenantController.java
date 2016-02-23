@@ -5,6 +5,8 @@ import com.closer.tenant.service.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 /**
  * Created by closer on 2016/1/27.
  */
@@ -21,7 +23,12 @@ public class TenantController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public Tenant add(@PathVariable long id) {
+    public Tenant get(@PathVariable long id) {
         return tenantService.findStrictOne(id);
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    public Tenant add(@PathVariable long id, @RequestBody Map<String, Object> tenantMap) {
+        return tenantService.update(id, tenantMap);
     }
 }

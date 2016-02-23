@@ -18,7 +18,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.SharedCacheMode;
 import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,7 +75,8 @@ public class RDMSConfig {
         factory.setDataSource(dataSource());
         factory.getJpaPropertyMap().put("hibernate.ejb.naming_strategy", "org.hibernate.cfg.ImprovedNamingStrategy");
         factory.getJpaPropertyMap().put("hibernate.ejb.interceptor", INTERCEPTOR);
-        factory.setSharedCacheMode(SharedCacheMode.ENABLE_SELECTIVE);
+        //校验的模式
+//        factory.setValidationMode(ValidationMode.NONE);
         factory.afterPropertiesSet();
         return factory.getObject();
     }
@@ -87,5 +87,4 @@ public class RDMSConfig {
         txManager.setEntityManagerFactory(entityManagerFactory);
         return txManager;
     }
-
 }

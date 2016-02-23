@@ -9,6 +9,7 @@
     3. Spring Data Redis    1.6.2.RELEASE
     4. Jackson              2.4.5
     5. Hibernate            4.3.6.Final
+    6. Quartz               2.2.2
 
 各开源项目之间可能会有版本不兼容，因此应该尽量小心，可以参考本配置。
 
@@ -170,6 +171,12 @@ Spring提供了多个缓存操作的注解
         }
 ```
 
+## 任务调度及持久化
+Spring本身已可以很好的支持任务调度，通过`@EnableScheduling`注解打开任务调度，使用`@Scheduled`对方法进行注解，
+使其成为一个任务。但该方式在集群方式却是有很大的局限性。因此引入的Quartz，同时确保任务不丢失，我们使用了其持久化功能。
+1. 使用`/init-sql`目录下，选择合适类型的数据库脚本，初始化Quartz表;
+2. 新增配置`QuartzConfig`，配置`SchedulerFactoryBean`及相应的`JobDetail`，可参考`HappyBirthdayJob`;
+3. 创建`Trigger`，可参考`HappyBirthdayJob.trigger`;
 
 ## 框架为我们做了什么
 
@@ -431,3 +438,7 @@ public class Demo extends BaseIdDomain<String> {
 [Spring Data JPA Reference](http://docs.spring.io/spring-data/jpa/docs/1.8.2.RELEASE/reference/html/)
 
 [Spring Data Redis Reference](http://docs.spring.io/spring-data/redis/docs/1.6.2.RELEASE/reference/html/)
+
+[Quartz Scheduler Example Programs and Sample Code](http://www.quartz-scheduler.org/generated/2.2.2/pdf/Quartz_Scheduler_Example_Programs_and_Sample_Code.pdf)
+
+[Quartz Scheduler Configuration Guide](http://www.quartz-scheduler.org/generated/2.2.2/pdf/Quartz_Scheduler_Configuration_Guide.pdf)
