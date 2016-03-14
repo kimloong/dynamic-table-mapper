@@ -52,7 +52,7 @@ public class DynamicRoutingDataSource extends AbstractRoutingDataSource{
     }
 ```
 
-## 分库支持
+## 分表支持
 
 由于`Spring Data JPA`对JPA规范中的`@Table`使用SpEL，所以无法直接使用`@Table`来动态实现表路由，此处借助Hibernate提供的`Interceptor`，我们可以看下官方对该接口的说明
 
