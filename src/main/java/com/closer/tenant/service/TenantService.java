@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
  * Created by closer on 2016/1/27.
  */
 @Service
-public class TenantService extends BaseService<Tenant> {
+public class TenantService extends BaseService<Tenant,Long> {
 
     @Autowired
     private ApplicationEventPublisher publisher;

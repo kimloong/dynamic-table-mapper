@@ -5,18 +5,19 @@ import com.closer.common.handler.TableProvider;
 import com.closer.common.repository.BaseTenantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by closer on 2016/1/27.
  */
-public abstract class BaseTenantService<T extends BaseTenantDomain> extends BaseService<T> {
+public abstract class BaseTenantService<T extends BaseTenantDomain<I>, I extends Serializable> extends BaseService<T, I> {
 
     @Autowired
-    private BaseTenantRepository<T> baseTenantRepository;
+    private BaseTenantRepository<T,I> baseTenantRepository;
 
     @Override
-    public T findOne(Long id) {
+    public T findOne(I id) {
         return baseTenantRepository.findByIdAndTenant(id, TableProvider.getTenantId());
     }
 
@@ -32,7 +33,7 @@ public abstract class BaseTenantService<T extends BaseTenantDomain> extends Base
     }
 
     @Override
-    public boolean exists(Long id) {
+    public boolean exists(I id) {
         return findOne(id) != null;
     }
 }

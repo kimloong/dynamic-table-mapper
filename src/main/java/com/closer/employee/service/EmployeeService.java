@@ -11,16 +11,14 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * 员工Service
  * Created by Zhang Jinlong(150429) on 2016/1/4.
  */
 @Service
-public class EmployeeService extends BaseTenantService<Employee> implements TenantSupport {
+public class EmployeeService extends BaseTenantService<Employee, Long> implements TenantSupport {
 
     @Autowired
     private ApplicationEventPublisher eventPublisher;
@@ -29,10 +27,8 @@ public class EmployeeService extends BaseTenantService<Employee> implements Tena
     private Scheduler scheduler;
 
     @Override
-    public Set<Class> getEntities() {
-        Set<Class> set = new HashSet<>();
-        set.add(Employee.class);
-        return set;
+    public Class[] getEntities() {
+        return new Class[]{Employee.class};
     }
 
     @Override

@@ -1,9 +1,7 @@
 package com.closer.common.config;
 
-import com.closer.company.domain.Company;
 import com.closer.tenant.domain.Tenant;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.type.CollectionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -23,7 +21,6 @@ import org.springframework.scripting.support.ResourceScriptSource;
 import redis.clients.jedis.JedisPoolConfig;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -89,10 +86,6 @@ public class RedisConfig {
     public CacheManager cacheManager() {
         Set<CacheManager> cacheManagers = new HashSet<>();
         cacheManagers.add(getCacheManager(Tenant.class, "tenants"));
-        CollectionType companiesType =
-                webConfig.objectMapper().getTypeFactory()
-                        .constructCollectionType(List.class, Company.class);
-        cacheManagers.add(getCacheManager(companiesType, "companies"));
         CompositeCacheManager cacheManager = new CompositeCacheManager();
         cacheManager.setCacheManagers(cacheManagers);
         cacheManager.afterPropertiesSet();

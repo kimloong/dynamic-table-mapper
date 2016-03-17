@@ -14,26 +14,26 @@ import java.util.List;
  * Created by closer on 2016/1/4.
  */
 @RestController
-@RequestMapping("/companies")
+@RequestMapping("/employees")
 public class EmployeeController {
 
     @Autowired
     private EmployeeService service;
 
     @JsonView(View.EagerDetail.class)
-    @RequestMapping(value = "/employees/{employeeId}",method = RequestMethod.GET)
-    public Employee get(@PathVariable("employeeId") long employeeId) {
-        return service.findOne(employeeId);
+    @RequestMapping(value = "/{id}",method = RequestMethod.GET)
+    public Employee get(@PathVariable("id") long id) {
+        return service.findOne(id);
     }
 
     @JsonView(View.List.class)
-    @RequestMapping(value = "/{companyId}/employees", method = RequestMethod.GET)
-    public List list(@PathVariable long companyId) {
+    @RequestMapping(method = RequestMethod.GET)
+    public List list() {
         return service.findAll();
     }
 
-    @RequestMapping(value = "/{companyId}/employees", method = RequestMethod.POST)
-    public Employee add(@PathVariable long companyId, @RequestBody Employee employee) {
+    @RequestMapping(method = RequestMethod.POST)
+    public Employee add(@RequestBody Employee employee) {
         return service.add(employee);
     }
 }

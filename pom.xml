@@ -28,6 +28,11 @@
         <spring-data-redis.version>1.6.2.RELEASE</spring-data-redis.version>
         <hibernate.version>4.3.6.Final</hibernate.version>
         <jackson.version>2.4.5</jackson.version>
+
+        <jetty.context>/</jetty.context>
+        <jetty.http.port>9088</jetty.http.port>
+        <jetty.https.port>9443</jetty.https.port>
+        <jetty.stopPort>10080</jetty.stopPort>
     </properties>
     <dependencies>
         <dependency>
@@ -222,6 +227,28 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <!--maven jetty 插件配置 -->
+                <plugin>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>jetty-maven-plugin</artifactId>
+                    <version>8.1.16.v20140903</version>
+                    <configuration>
+                        <webApp>
+                            <contextPath>${jetty.context}</contextPath>
+                        </webApp>
+                        <connectors>
+                            <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                                <port>${jetty.http.port}</port>
+                            </connector>
+                        </connectors>
+                        <stopKey>jetty</stopKey>
+                        <stopPort>${jetty.stopPort}</stopPort>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <finalName>dynamic-table-mapper</finalName>
     </build>
 </project>

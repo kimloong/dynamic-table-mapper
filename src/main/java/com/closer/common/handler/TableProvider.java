@@ -22,7 +22,11 @@ public class TableProvider {
         if (tenant == null) {
             return "";
         }
-        return StringUtils.defaultString("T"+String.valueOf(tenant.getId() & 7), DEFAULT_PREFIX);
+        return StringUtils.defaultString("T"+String.valueOf(getTableNum()), DEFAULT_PREFIX);
+    }
+
+    public static long getTableNum() {
+        return getTenantId() & 7;
     }
 
     public static long getTenantId() {

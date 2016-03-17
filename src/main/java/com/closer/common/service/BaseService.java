@@ -1,17 +1,17 @@
 package com.closer.common.service;
 
+import com.closer.common.constant.IDG;
 import com.closer.common.domain.BaseDomain;
 import com.closer.common.repository.BaseRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
-import org.apache.commons.beanutils.BeanMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hibernate.annotations.GenericGenerator;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -20,21 +20,22 @@ import java.util.Map;
  * Created by closer on 2016/1/5.
  */
 @Transactional
-public class BaseService<T extends BaseDomain> {
-
-    private Logger log = LoggerFactory.getLogger(this.getClass());
+public class BaseService<T extends BaseDomain<I>, I extends Serializable> {
 
     @Autowired
-    private BaseRepository<T> repository;
+    private BaseRepository<T, I> repository;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     public static final Converter<String, String> CONVERTER
             = CaseFormat.LOWER_UNDERSCORE.converterTo(CaseFormat.LOWER_CAMEL);
 
-    public T findOne(Long id) {
+    public T findOne(I id) {
         return repository.findOne(id);
     }
 
-    public T findStrictOne(Long id) {
+    public T findStrictOne(I id) {
         T t = findOne(id);
         if (t == null) {
             throw new RuntimeException("未找到指定id的对象");
@@ -47,8 +48,16 @@ public class BaseService<T extends BaseDomain> {
     }
 
     public T add(T t) {
-        t.setId(null);
+        GenericGenerator generator = t.getClass().getAnnotation(GenericGenerator.class);
+        if (!IDG.ASSIGNED.equals(generator.strategy())) {
+            t.setId(null);
+        }
+        beforeAdd(t);
         return repository.save(t);
+    }
+
+    protected void beforeAdd(T t) {
+
     }
 
     /**
@@ -70,61 +79,49 @@ public class BaseService<T extends BaseDomain> {
         return t;
     }
 
-    public T update(Long id, Map<String, Object> map) {
+    public T update(I id, Map<String, Object> map) {
         T t = findOne(id);
         if (t == null) {
             throw new RuntimeException("找不到相关对象");
         }
-        updateByMap(t, map);
+        beforeUpdateByMapMerge(t, map);
+        t = updateByMap(t, map);
+        afterUpdateByMapMerge(t);
         return update(t);
     }
 
-    private void updateByMap(Object t, Map<String, Object> map) {
-        BeanMap beanMap = new BeanMap(t);
+    private T updateByMap(Object t, Map<String, Object> map) {
+        int size = map.entrySet().size();
+        String[] ignoreProperties = new String[size];
+        int i = 0;
         for (Map.Entry<String, Object> entry : map.entrySet()) {
-            String key = CONVERTER.convert(entry.getKey());
-            Object value = entry.getValue();
-            Method method = beanMap.getWriteMethod(key);
-            if (method != null) {
-                Class fieldType = method.getParameterTypes()[0];
-                if (BaseDomain.class.isAssignableFrom(fieldType)) {
-                    //field的真实类型实例
-                    try {
-                        Object fieldDomain = fieldType.newInstance();
-                        updateByMap(fieldDomain, (Map) value);
-                        setFieldValue(method, t, key, fieldDomain);
-                    } catch (InstantiationException | IllegalAccessException e) {
-                        throw new RuntimeException("无法实例类型" + fieldType.getCanonicalName()
-                                + ",可能由于缺少无参构造函数");
-                    }
-                } else if (fieldType.equals(Long.class) && value instanceof Integer) {
-                    setFieldValue(method, t, key, Long.parseLong(String.valueOf(value)));
-                } else {
-                    setFieldValue(method, t, key, value);
-                }
-            }
+            ignoreProperties[i] = CONVERTER.convert(entry.getKey());
+            i++;
         }
+        T newT = (T) objectMapper.convertValue(map, t.getClass());
+        BeanUtils.copyProperties(t, newT, ignoreProperties);
+        return newT;
     }
 
-    private void setFieldValue(Method method, Object t, String key, Object value) {
-        try {
-            method.invoke(t, value);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            log.debug("未找到属性{}", key);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException(key + "参数类型错误");
-        }
+    protected void beforeUpdateByMapMerge(T t, Map<String, Object> map) {
     }
 
-    public void delete(T t) {
-        repository.delete(t);
+    protected void afterUpdateByMapMerge(T t) {
     }
 
-    public void delete(Long id) {
+    public void delete(I id) {
         repository.delete(id);
     }
 
-    public boolean exists(Long id) {
+    protected void delete(T t) {
+        beforeDelete(t);
+        repository.delete(t);
+    }
+
+    protected void beforeDelete(T t) {
+    }
+
+    public boolean exists(I id) {
         return repository.exists(id);
     }
 }

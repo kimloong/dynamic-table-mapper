@@ -4,6 +4,7 @@ import com.closer.common.config.RDMSConfig;
 import com.closer.tenant.domain.Tenant;
 import com.closer.tenant.event.TenantCreateEvent;
 import com.closer.tenant.service.TenantSupport;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.ImprovedNamingStrategy;
 import org.hibernate.dialect.Dialect;
@@ -21,9 +22,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 表处理帮助类
@@ -33,7 +32,7 @@ import java.util.Set;
 public class TableHandler {
 
 
-    private Logger log = LoggerFactory.getLogger(TableHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TableHandler.class);
 
     @Autowired
     private DataSource dataSource;
@@ -49,8 +48,12 @@ public class TableHandler {
     @PostConstruct
     public void postConstruct() {
         entityClasses = new HashSet<>();
+        if (tenantSupports == null) {
+            tenantSupports = Collections.emptyList();
+            return;
+        }
         for (TenantSupport tenantSupport : tenantSupports) {
-            entityClasses.addAll(tenantSupport.getEntities());
+            entityClasses.addAll(Arrays.asList(tenantSupport.getEntities()));
         }
     }
 
@@ -71,7 +74,7 @@ public class TableHandler {
     public void createTable(Set<Class> entityClasses, Tenant tenant) {
         System.out.println(Thread.currentThread().getName());
         TableProvider.setTenant(tenant);
-        _createTable(entityClasses, TableProvider.PREFIX, " IF NOT EXISTS " + TableProvider.getTablePrefix());
+        _createTable(entityClasses, TableProvider.PREFIX, TableProvider.getTablePrefix());
         TableProvider.clear();
     }
 
@@ -91,8 +94,9 @@ public class TableHandler {
                     String value = keyValues[i + 1];
                     sql = sql.replace(key, value);
                 }
-                log.info("建表sql:{}", sql);
-                stmt.execute(sql);
+                sql = make(sql);
+                LOG.info("建表sql:{}", sql);
+                executeSql(stmt, sql);
             }
         } catch (SQLException e) {
             String msg = "创建表失败";
@@ -100,6 +104,35 @@ public class TableHandler {
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
+    }
+
+    private static void executeSql(Statement stmt, String sql) {
+        try {
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            if (!sql.startsWith("alter table")) {
+                String msg = "创建表失败";
+                throw new RuntimeException(msg, e);
+            }
+            LOG.warn(e.getMessage());
+        }
+    }
+
+    /**
+     * 对sql进行特殊处理
+     */
+    private static String make(String sql) {
+        //增加if not exists
+        if (sql.startsWith("create table")) {
+            return sql.replace("create table", "create table if not exists");
+        }
+        //重命名约束名
+        if (sql.contains("add constraint")) {
+            String[] fields = sql.split("\\s");
+            fields[5] = fields[5] + TableProvider.getTableNum();
+            return StringUtils.join(fields, " ");
+        }
+        return sql;
     }
 
     private String[] entity2Sql(Dialect dialect, Set<Class> entityClasses) {

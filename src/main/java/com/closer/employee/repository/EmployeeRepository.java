@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
  * Created by closer on 2016/1/4.
  */
 @Repository
-public interface EmployeeRepository extends BaseTenantRepository<Employee> {
+public interface EmployeeRepository extends BaseTenantRepository<Employee, Long> {
 }

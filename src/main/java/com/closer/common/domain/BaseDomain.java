@@ -11,11 +11,12 @@ import javax.persistence.*;
  */
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public abstract class BaseDomain {
+public abstract class BaseDomain<I> {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue(generator = "id")
+    @Column(length = 36)
+    private I id;
 
     @LastModifiedDate
     private long updateTime;
@@ -24,11 +25,11 @@ public abstract class BaseDomain {
     @Column(updatable = false)
     private long createTime;
 
-    public Long getId() {
+    public I getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(I id) {
         this.id = id;
     }
 

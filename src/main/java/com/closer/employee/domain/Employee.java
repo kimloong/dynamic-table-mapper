@@ -1,12 +1,14 @@
 package com.closer.employee.domain;
 
 
+import com.closer.common.constant.IDG;
 import com.closer.common.domain.BaseTenantDomain;
 import com.closer.common.handler.TableProvider;
 import com.closer.common.view.View;
 import com.closer.department.domain.Department;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.apache.commons.lang3.time.DateUtils;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Calendar;
@@ -18,7 +20,8 @@ import java.util.Date;
  */
 @Entity
 @Table(name = TableProvider.PREFIX_ + "employee")
-public class Employee extends BaseTenantDomain {
+@GenericGenerator(name = "id", strategy = IDG.DISTRIBUTED_IDENTITY)
+public class Employee extends BaseTenantDomain<Long> {
 
     private String name;
 

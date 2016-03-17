@@ -1,10 +1,12 @@
 package com.closer.department.domain;
 
+import com.closer.common.constant.IDG;
 import com.closer.common.domain.BaseTenantDomain;
 import com.closer.common.handler.TableProvider;
 import com.closer.employee.domain.Employee;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.List;
@@ -15,7 +17,8 @@ import java.util.List;
  */
 @Entity
 @Table(name = TableProvider.PREFIX_ + "department")
-public class Department extends BaseTenantDomain {
+@GenericGenerator(name = "id", strategy = IDG.DISTRIBUTED_IDENTITY)
+public class Department extends BaseTenantDomain<Long> {
 
     private String name;
 
