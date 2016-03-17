@@ -23,15 +23,15 @@ import java.util.Properties;
  * 支持分布式
  * 规则：
  * Long类型，总计占53位(考虑JavaScript仅能表示53位整形)
- * 1.时间秒数，占 {TIME_BITS} bit，可表示[34]年
+ * 1.时间秒数，占 30 bit，可表示[34]年
  * 2.集群间计数器 占 {COUNTER_BITS} bit，可表示[1024]个数，这里使用redis来处理，每过{PER_TIME}毫秒进行清0
  * 3.实例内计数器 占 {SEQUENCE_BITS} bit，可表示[8096]个数,每过{COUNTER_EXPIRE_TIME}毫秒进行清0
  * 注意：这里的{COUNTER_EXPIRE_TIME}不宜设置过大，过大之后，当redis宕掉恢复后，如果计数又重新开始，且又
  * 在同一个{COUNTER_EXPIRE_TIME}时间窗口内，则会引起主键重复。同时又不宜设置过小，会导致频繁的读写redis。
  * 这里主要考虑的是一个{PER_TIME}时间窗口内，redis宕掉之后也无法恢复。
  * 实现参考：http://www.oschina.net/code/snippet_147955_25122
- * <p/>
  * Created by closer on 2016/2/2.
+ * @since 1.0
  */
 //TODO 还需要做性能测试
 public class DistributedIdentifierGenerator implements IdentifierGenerator, Configurable {
@@ -47,11 +47,6 @@ public class DistributedIdentifierGenerator implements IdentifierGenerator, Conf
      * 集群间计数过期时间，单位秒
      */
     private static final long COUNTER_EXPIRE_TIME = 60 * 5L;
-
-    /**
-     * 时间所占位数
-     */
-    private static final int TIME_BITS = 30;
 
     /**
      * 集群间计数所占位数

@@ -156,7 +156,7 @@ Spring提供了多个缓存操作的注解
 1. 要特别注意分布式缓存的与Hibernate结合时，延迟加载属性的序列化问题。可以阅读
 本人的博文[一个Memcache+Hibernate自处理二级缓存问题](http://blog.csdn.net/zjl103/article/details/45484633);
 2. Spring官网推荐在具体类上使用`@Cache*`注解，而不是接口上;
-3. `update`方法应该使用`@CacheEvict`而不是`@CachePut`;
+3. `update`方法应该使用`@CacheEvict`而不是`@CachePut`（由于从RMDB操作完成到Cache操作已经不是一个原子操作，故在多线程情况下，你当前要Put的实体可能已经不是最新的了）;
 4. 要 *注意* cache与事务的关系，在Spring Cache中，缓存操作位于被注解方法的执行前后（可以通过），因此如遇到如下场景，
 则会缓存到脏数据。缓存的相关实现可以查看代码，核心代码`CacheInterceptor`。部分`CacheManager`继承自`AbstractTransactionSupportingCacheManager`,
 则可通过`setTransactionAware（true）`来使用得缓存在事务提交后执行。
@@ -171,9 +171,18 @@ Spring提供了多个缓存操作的注解
         }
 ```
 
+## 整型分布式唯一主键生成
+* 为何不使用UUID？
+  * 存储空间翻倍，UUID长度是128bit，BigInt是64bit
+  * 索引性能比BigInt差，同时无序的UUID对Mysql的Innodb聚簇索引性能影响更大，会使索引数频繁的重建。
+* 为何不使用自增
+  * 自增只能保证表唯一，无法保证各分表与分库唯一
+* 实现参考：[snowflake的JAVA版本(分布式唯一ID生成器)](http://www.oschina.net/code/snippet_147955_25122)
+  * 原文中提到的实现为一个单独的主键生成服务，为了简化部署，这里将实现集成至服务内，而workId则通过Redis来生成，具体实现细节可以查看`DistributedIdentifierGenerator`类注释
+
 ## 任务调度及持久化
 Spring本身已可以很好的支持任务调度，通过`@EnableScheduling`注解打开任务调度，使用`@Scheduled`对方法进行注解，
-使其成为一个任务。但该方式在集群方式却是有很大的局限性。因此引入的Quartz，同时确保任务不丢失，我们使用了其持久化功能。
+使其成为一个任务。但该方式在集群方式却是有很大的局限性。因此引入的Quartz，同时可确保持久化任务，我们使用了其持久化功能。
 1. 使用`/init-sql`目录下，选择合适类型的数据库脚本，初始化Quartz表;
 2. 新增配置`QuartzConfig`，配置`SchedulerFactoryBean`及相应的`JobDetail`，可参考`HappyBirthdayJob`;
 3. 创建`Trigger`，可参考`HappyBirthdayJob.trigger`;
