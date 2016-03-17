@@ -21,7 +21,7 @@ public class DepartmentController {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public Department get(@PathVariable long id) {
-        return service.findOne(id);
+        return service.findStrictOne(id);
     }
 
     @RequestMapping(method = RequestMethod.GET)

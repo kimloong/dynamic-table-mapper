@@ -41,12 +41,12 @@ public class RDMSConfig {
 //        EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
 //        return builder.setType(EmbeddedDatabaseType.HSQL).build();
         //使用单独的HSQL服务
-//        java -cp hsqldb-2.3.3.jar org.hsqldb.Server -database.0 testdb1 -dbname.0 testdbname1 -database.1 testdb2 -dbname.1 testdbname2
-//        java -cp hsqldb-2.3.3.jar org.hsqldb.util.DatabaseManager -url jdbc:hsqldb:hsql://localhost/testdbname1
+//        java -cp ../hsqldb-2.3.3.jar org.hsqldb.Server -database.0 testdb1 -dbname.0 testdbname1 -database.1 testdb2 -dbname.1 testdbname2
+//        java -cp ../hsqldb-2.3.3.jar org.hsqldb.util.DatabaseManager -url jdbc:hsqldb:hsql://localhost/testdbname1
         JDBCDataSource dataSource1 = new JDBCDataSource();
         dataSource1.setUrl("jdbc:hsqldb:hsql://localhost/testdbname1");
 
-//        java -cp hsqldb-2.3.3.jar org.hsqldb.util.DatabaseManager -url jdbc:hsqldb:hsql://localhost/testdbname2
+//        java -cp ../hsqldb-2.3.3.jar org.hsqldb.util.DatabaseManager -url jdbc:hsqldb:hsql://localhost/testdbname2
         JDBCDataSource dataSource2 = new JDBCDataSource();
         dataSource2.setUrl("jdbc:hsqldb:hsql://localhost/testdbname2");
 
@@ -85,6 +85,8 @@ public class RDMSConfig {
     public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
         JpaTransactionManager txManager = new JpaTransactionManager();
         txManager.setEntityManagerFactory(entityManagerFactory);
+        //使用得@Transactional(propagation = Propagation.SUPPORTS)注解的方法可以真正不走事务
+        txManager.setTransactionSynchronization(JpaTransactionManager.SYNCHRONIZATION_ON_ACTUAL_TRANSACTION);
         return txManager;
     }
 }

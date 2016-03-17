@@ -9,6 +9,7 @@ import com.google.common.base.Converter;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
@@ -31,10 +32,12 @@ public class BaseService<T extends BaseDomain<I>, I extends Serializable> {
     public static final Converter<String, String> CONVERTER
             = CaseFormat.LOWER_UNDERSCORE.converterTo(CaseFormat.LOWER_CAMEL);
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     public T findOne(I id) {
         return repository.findOne(id);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     public T findStrictOne(I id) {
         T t = findOne(id);
         if (t == null) {
@@ -43,6 +46,7 @@ public class BaseService<T extends BaseDomain<I>, I extends Serializable> {
         return t;
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     public List<T> findAll() {
         return repository.findAll();
     }
@@ -71,12 +75,7 @@ public class BaseService<T extends BaseDomain<I>, I extends Serializable> {
         if (!exists(t.getId())) {
             throw new RuntimeException("数据不存在");
         }
-        repository.save(t);
-        repository.findOne(t.getId());
-        if (true) {
-            throw new RuntimeException("");
-        }
-        return t;
+        return repository.save(t);
     }
 
     public T update(I id, Map<String, Object> map) {
@@ -121,6 +120,7 @@ public class BaseService<T extends BaseDomain<I>, I extends Serializable> {
     protected void beforeDelete(T t) {
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     public boolean exists(I id) {
         return repository.exists(id);
     }

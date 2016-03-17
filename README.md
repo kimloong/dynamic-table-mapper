@@ -310,6 +310,13 @@ public class Demo {
 
 简单来说，继承体系仅对框架有意义，而对于业务代码，则会成为开发与维护的累赘。
 
+### 查询是否需要使用事务
+援引网上观点，已找不出处
+> 1. 如果你一次执行单条查询语句，则没有必要启用事务支持，数据库默认支持SQL执行期间的读一致性；
+> 2. 如果你一次执行多条查询语句，例如统计查询，报表查询，在这种场景下，多条查询SQL必须保证整体的读一致性，否则，在前条SQL查询之后，后条SQL查询之前，数据被其他用户改变，则该次整体的统计查询将会出现读数据不一致的状态，此时，应该启用事务支持。
+因此可以使用`@Transactional`在基类设置使用得全部方法都默认使用事务，同时再使用`@Transactional(propagation = Propagation.SUPPORTS)`来对单个方法排除掉事务，主要目的是为了避免必须使用事务而遗漏造成不良后果。
+注：在配置`TransactionManager`，需要设置`AbstractPlatformTransactionManager.setTransactionSynchronization(AbstractPlatformTransactionManager.SYNCHRONIZATION_ON_ACTUAL_TRANSACTION)`，不要问我为什么，阅读下`Propagation.SUPPORTS`的注释及相关代码注释。
+
 ## 问题解决及注意事项
 
 此处记录本人在整合过程中遇到的一些问题及后续引用该框架的开发者需要注意的事项。
