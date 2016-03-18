@@ -23,6 +23,7 @@ public class DynamicRoutingDataSource extends AbstractRoutingDataSource{
 
     @Override
     protected Object determineCurrentLookupKey() {
+        //返回当前上下文需要使用的数据源名称，与下面的ds1|ds2对应
         return TableProvider.getDataSoureName();
     }
 }
@@ -54,7 +55,7 @@ public class DynamicRoutingDataSource extends AbstractRoutingDataSource{
 
 ## 分表支持
 
-由于`Spring Data JPA`对JPA规范中的`@Table`使用SpEL，所以无法直接使用`@Table`来动态实现表路由，此处借助Hibernate提供的`Interceptor`，我们可以看下官方对该接口的说明
+由于`Spring Data JPA`无法对JPA规范中的`@Table`使用SpEL，所以无法直接使用`@Table`来动态实现表路由，此处借助Hibernate提供的`Interceptor`，我们可以看下官方对该接口的说明
 
 > Inspection occurs before property values are written and after they are read
 > from the database.
@@ -142,7 +143,7 @@ Spring提供了多个缓存操作的注解
 
 通过上面的展示，我们的应用代码不依赖于具体的缓存实现，后续如果需要变更缓存实现，
 我们无需更改我们的应用代码。而且对于后续扩展对新类型缓存的支持也将会很简便，该
-缓存仅需实现Spring的`CacheManager`接口即可。
+缓存仅需实现Spring的`CacheManager`接口即可，同时这些注解支持使用SpEL来进行“自定义”。
 目前Spring 支持的常用缓存类型有：
 
 1. Guava
@@ -174,11 +175,11 @@ Spring提供了多个缓存操作的注解
 ## 整型分布式唯一主键生成
 * 为何不使用UUID？
   * 存储空间翻倍，UUID长度是128bit，BigInt是64bit
-  * 索引性能比BigInt差，同时无序的UUID对Mysql的Innodb聚簇索引性能影响更大，会使索引数频繁的重建。
+  * 索引性能比BigInt差，同时无序的UUID对Mysql的Innodb聚簇索引性能影响更大，会使索引树频繁的重建。
 * 为何不使用自增
   * 自增只能保证表唯一，无法保证各分表与分库唯一
 * 实现参考：[snowflake的JAVA版本(分布式唯一ID生成器)](http://www.oschina.net/code/snippet_147955_25122)
-  * 原文中提到的实现为一个单独的主键生成服务，为了简化部署，这里将实现集成至服务内，而workId则通过Redis来生成，具体实现细节可以查看`DistributedIdentifierGenerator`类注释
+  * 原文中提到的实现为一个独立的主键生成服务，为了简化部署，这里将实现集成至服务内，而workId则通过Redis来生成，具体实现细节可以查看`DistributedIdentifierGenerator`类注释
 
 ## 任务调度及持久化
 Spring本身已可以很好的支持任务调度，通过`@EnableScheduling`注解打开任务调度，使用`@Scheduled`对方法进行注解，
@@ -203,6 +204,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
 
 ### 同一实体返回不同投影给客户端
 我们经常会遇到【列表请求】与【详情请求】需要包含不同的字段，以减小网络的传输量，借助Spring Mvc对`@JsonView`的支持，我们无需再定义额外`Vo`来实现。
+
 控制器定义
 ```java
 @RestController
@@ -314,7 +316,9 @@ public class Demo {
 援引网上观点，已找不出处
 > 1. 如果你一次执行单条查询语句，则没有必要启用事务支持，数据库默认支持SQL执行期间的读一致性；
 > 2. 如果你一次执行多条查询语句，例如统计查询，报表查询，在这种场景下，多条查询SQL必须保证整体的读一致性，否则，在前条SQL查询之后，后条SQL查询之前，数据被其他用户改变，则该次整体的统计查询将会出现读数据不一致的状态，此时，应该启用事务支持。
-因此可以使用`@Transactional`在基类设置使用得全部方法都默认使用事务，同时再使用`@Transactional(propagation = Propagation.SUPPORTS)`来对单个方法排除掉事务，主要目的是为了避免必须使用事务而遗漏造成不良后果。
+
+因此可以使用`@Transactional`在基类设置使得全部方法都默认使用事务，同时再使用`@Transactional(propagation = Propagation.SUPPORTS)`来对单个方法排除掉事务，主要目的是为了避免遗漏注解必须使用事务的方法造成不良后果。
+
 注：在配置`TransactionManager`，需要设置`AbstractPlatformTransactionManager.setTransactionSynchronization(AbstractPlatformTransactionManager.SYNCHRONIZATION_ON_ACTUAL_TRANSACTION)`，不要问我为什么，阅读下`Propagation.SUPPORTS`的注释及相关代码注释。
 
 ## 问题解决及注意事项

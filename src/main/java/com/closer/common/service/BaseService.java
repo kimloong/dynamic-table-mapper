@@ -79,17 +79,16 @@ public class BaseService<T extends BaseDomain<I>, I extends Serializable> {
     }
 
     public T update(I id, Map<String, Object> map) {
-        T t = findOne(id);
-        if (t == null) {
+        T oldDomain = findOne(id);
+        if (oldDomain == null) {
             throw new RuntimeException("找不到相关对象");
         }
-        beforeUpdateByMapMerge(t, map);
-        t = updateByMap(t, map);
-        afterUpdateByMapMerge(t);
-        return update(t);
+        T newDomain = createDomainFromOldAndMap(oldDomain, map);
+        beforeUpdate(oldDomain, newDomain);
+        return update(newDomain);
     }
 
-    private T updateByMap(Object t, Map<String, Object> map) {
+    private T createDomainFromOldAndMap(T oldDomain, Map<String, Object> map) {
         int size = map.entrySet().size();
         String[] ignoreProperties = new String[size];
         int i = 0;
@@ -97,15 +96,12 @@ public class BaseService<T extends BaseDomain<I>, I extends Serializable> {
             ignoreProperties[i] = CONVERTER.convert(entry.getKey());
             i++;
         }
-        T newT = (T) objectMapper.convertValue(map, t.getClass());
-        BeanUtils.copyProperties(t, newT, ignoreProperties);
-        return newT;
+        T newDomain = (T) objectMapper.convertValue(map, oldDomain.getClass());
+        BeanUtils.copyProperties(oldDomain, newDomain, ignoreProperties);
+        return newDomain;
     }
 
-    protected void beforeUpdateByMapMerge(T t, Map<String, Object> map) {
-    }
-
-    protected void afterUpdateByMapMerge(T t) {
+    protected void beforeUpdate(T oldDomain, T newDomain) {
     }
 
     public void delete(I id) {
