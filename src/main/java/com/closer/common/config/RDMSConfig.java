@@ -28,7 +28,8 @@ import java.util.Map;
  */
 @Configuration
 @EnableJpaRepositories(value = "com.closer",
-        includeFilters = {@ComponentScan.Filter(Repository.class)})
+        includeFilters = {@ComponentScan.Filter(Repository.class)},
+        enableDefaultTransactions = false)
 @EnableTransactionManagement(proxyTargetClass = true)
 @EnableJpaAuditing
 public class RDMSConfig {
