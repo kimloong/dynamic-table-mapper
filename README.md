@@ -183,7 +183,8 @@ Spring提供了多个缓存操作的注解
 
 ## 任务调度及持久化
 Spring本身已可以很好的支持任务调度，通过`@EnableScheduling`注解打开任务调度，使用`@Scheduled`对方法进行注解，
-使其成为一个任务。但该方式在集群方式却是有很大的局限性。因此引入的Quartz，同时可确保持久化任务，我们使用了其持久化功能。
+使其成为一个任务。但该方式在集群方式却是有很大的局限性。因此引入Quartz，同时可确保持久化任务，我们使用了其持久化功能。
+
 1. 使用`/init-sql`目录下，选择合适类型的数据库脚本，初始化Quartz表;
 2. 新增配置`QuartzConfig`，配置`SchedulerFactoryBean`及相应的`JobDetail`，可参考`HappyBirthdayJob`;
 3. 创建`Trigger`，可参考`HappyBirthdayJob.trigger`;
@@ -286,6 +287,39 @@ public class Demo {
 * `@CreateDate`需要同时使用`@Column(updatable = false)`注解，否则实体更新时，可能会被覆盖。
 * 实体需要使用`@EntityListeners(AuditingEntityListener.class)`注解
 * `@CreatedBy`与`@LastModifiedBy`会稍微复杂点，请阅读[Spring Data JPA Reference](http://docs.spring.io/spring-data/jpa/docs/1.8.2.RELEASE/reference/html/)。 
+
+### 实现一个继承体系多类型ID及生成器
+有时在继承体系中，我们需要使用不同类型的ID，如Long或String，或需要使用到不同类型的ID生成器，如identity或uuid，为了避免因此我们要重起一个继承体系，我们可以使用此处提到的方法。
+定义基类，id使用泛型
+```java
+@MappedSuperclass
+public class BaseIdDomain<ID extends Serializable> {
+
+    @Id
+    @GeneratedValue(generator="id")
+    private ID id;
+
+    //省略getter/setter方法
+}
+```
+定义子类，此处指定了id为`String`类型，使用`@GenericGenerator`来指定具体的策略。
+```java
+@Entity
+@GenericGenerator(name = "id", strategy = "uuid2")
+public class Demo extends BaseIdDomain<String> {
+
+    //省略其它的字段定义
+}
+```
+注意
+* 这里的`name`需要与基类`@GeneratedValue`中的`generator`属性相同。
+* 这里的`strategy`可以是Hibernate已建，也可以使用自定义的，自定义的使用全限定路径，实现`IdentifierGenerator`接口。以下为常用的已建策略，更多已建策略可以查看`DefaultIdentifierGeneratorFactory`类。
+
+        sequence:       调用底层数据库的序列来生成主键，要设定序列名，不然hibernate无法找到。
+        identity:       使用SQL Server和MySQL的自增字段，Oracle 不支持自增字段
+        uuid和uuid.hex: 两者使用同一个生成器，生成不带分隔符的uuid，32位
+        uuid2：         生成带分隔符的uuid(8-4-4-4-12),36位
+        assigned：      根据用户设置值来做id，如果用户不设置，会抛出异常
 
 
 ### 提供增量式修改方法
@@ -416,40 +450,6 @@ ObjectMapper mapper = new ObjectMapper();
 mapper.readValue(json,
         mapper.getTypeFactory().constructCollectionType(List.class, Demo.class));
 ```
-
-### 实现一个继承体系多类型ID及生成器
-有时在继承体系中，我们需要使用不同类型的ID，如Long或String，或需要使用到不同类型的ID生成器，如identity或uuid，为了避免因此我们要重起一个继承体系，我们可以使用此处提到的方法。
-定义基类，id使用泛型
-```java
-@MappedSuperclass
-public class BaseIdDomain<ID extends Serializable> {
-
-    @Id
-    @GeneratedValue(generator="id")
-    private ID id;
-
-    //省略getter/setter方法
-}
-```
-定义子类，此处指定了id为`String`类型，使用`@GenericGenerator`来指定具体的策略。
-```java
-@Entity
-@GenericGenerator(name = "id", strategy = "uuid2")
-public class Demo extends BaseIdDomain<String> {
-
-    //省略其它的字段定义
-}
-```
-注意
-* 这里的`name`需要与基类`@GeneratedValue`中的`generator`属性相同。
-* 这里的`strategy`可以是Hibernate已建，也可以使用自定义的，自定义的使用全限定路径，实现`IdentifierGenerator`接口。以下为常用的已建策略，更多已建策略可以查看`DefaultIdentifierGeneratorFactory`类。
-
-        sequence:       调用底层数据库的序列来生成主键，要设定序列名，不然hibernate无法找到。
-        identity:       使用SQL Server和MySQL的自增字段，Oracle 不支持自增字段
-        uuid和uuid.hex: 两者使用同一个生成器，生成不带分隔符的uuid，32位
-        uuid2：         生成带分隔符的uuid(8-4-4-4-12),36位
-        assigned：      根据用户设置值来做id，如果用户不设置，会抛出异常
-
 
 
 ## 参考文献
